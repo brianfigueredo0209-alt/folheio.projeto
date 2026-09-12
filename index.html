@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acesso — FOLHEIO</title>
+  <link rel="icon" type="image/jpeg" href="assets/favicon.jpg">
+  <link rel="stylesheet" href="estilos/estilo_base.css?v=2">
+  <link rel="stylesheet" href="estilos/estilo_componentes.css?v=2">
+  <link rel="stylesheet" href="estilos/estilo_paginas.css?v=2">
+  <script src="scripts/script_global.js?v=2" defer></script>
+</head>
+
+<body>
+
+  <!-- ---------------------------------------------------------
+  // Nome do bloco: Estrutura da pagina de acesso em tela dividida
+  // --------------------------------------------------------- -->
+  <div class="layout-login-editorial">
+
+    <!-- Painel Manifesto Editorial (Lado Esquerdo) -->
+    <section class="painel-login-manifesto">
+      <header>
+        <div class="manifesto-marca">FOLHEIO</div>
+      </header>
+
+      <div class="manifesto-corpo">
+        <h1 class="manifesto-titulo">
+          Histórias que merecem <em>novas páginas</em> e novos leitores.
+        </h1>
+        <p class="manifesto-descricao">
+          Uma plataforma para circular obras raras, clássicos e leituras contemporâneas. Conecte sua estante a outros
+          leitores e descubra seu próximo capítulo.
+        </p>
+      </div>
+
+      <footer class="manifesto-rodape">
+        <span>Circulação Literária Independente</span>
+      </footer>
+    </section>
+
+    <!-- Painel de Autenticacao (Lado Direito) -->
+    <main class="painel-login-formulario">
+      <div class="caixa-formulario-login">
+        <h2 class="caixa-formulario-login__titulo">Entrar na sua estante</h2>
+        <p class="caixa-formulario-login__subtitulo">Insira suas credenciais para gerenciar suas trocas</p>
+
+        <form action="paginas/encontre_livros.html" method="get">
+          <div class="grupo-formulario">
+            <label for="campo-email">Endereço de e-mail</label>
+            <input type="email" id="campo-email" class="campo-entrada" placeholder="seu.nome@exemplo.com"
+              autocomplete="email" required>
+          </div>
+
+          <div class="grupo-formulario">
+            <div class="grupo-formulario__cabecalho">
+              <label for="campo-senha">Senha de acesso</label>
+              <a href="#" class="link-recuperar-senha">Esqueceu a senha?</a>
+            </div>
+            <div class="campo-com-acao">
+              <input type="password" id="campo-senha" class="campo-entrada" placeholder="••••••••"
+                autocomplete="current-password" required>
+              <button type="button" id="botao-alternar-senha" class="botao-acao-campo"
+                aria-label="Alternar exibicao da senha">
+                Exibir
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="botao botao--primario botao--total" style="margin-top: 24px;">
+            Acessar plataforma
+          </button>
+          
+          <div class="chamada-cadastro">
+            <span class="chamada-cadastro__texto">Ainda não possui uma conta?</span>
+            <a href="paginas/encontre_livros.html" class="chamada-cadastro__link">Cadastrar estante</a>
+          </div>
+        </form>
+      </div>
+    </main>
+
+  </div>
+
+</body>
+
+</html>
