@@ -106,3 +106,91 @@ button, input, select, textarea {
   }
 }
 
+
+
+/* Estilos internos do card de bloqueio mobile */
+.bloqueio-mobile__card {
+  background-color: var(--cor-superficie);
+  padding: 40px;
+  border-radius: var(--raio-borda-medio);
+  box-shadow: var(--sombra-suave);
+  max-width: 90%;
+  width: 380px;
+  border: 1px solid var(--cor-borda);
+}
+
+.bloqueio-mobile__logo {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--cor-terracota-nobre);
+}
+
+.bloqueio-mobile__titulo {
+  font-size: 22px;
+  margin-bottom: 12px;
+  color: var(--cor-texto-principal);
+}
+
+.bloqueio-mobile__texto {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--cor-texto-secundario);
+  margin-bottom: 32px;
+}
+
+.bloqueio-mobile__divisor {
+  height: 1px;
+  background-color: var(--cor-borda);
+  margin-bottom: 24px;
+}
+
+.bloqueio-mobile__texto-secundario {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cor-texto-suave);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.bloqueio-mobile__lojas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bloqueio-mobile__botao-loja {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--cor-fundo);
+  border: 1px solid var(--cor-borda);
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: var(--cor-texto-principal);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: default;
+}
+
+.bloqueio-mobile__botao-loja:hover {
+  background-color: #e8e4db;
+}
+
+.botao-loja__textos {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.botao-loja__textos span {
+  font-size: 11px;
+  color: var(--cor-texto-suave);
+}
+
+.botao-loja__textos strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
