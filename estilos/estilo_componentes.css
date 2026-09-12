@@ -1,0 +1,318 @@
+/* ---------------------------------------------------------
+// Nome do bloco: Cabecalho com layout assimetrico e curadoria
+// --------------------------------------------------------- */
+.cabecalho-principal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 6%;
+  background-color: rgba(248, 246, 240, 0.94);
+  backdrop-filter: blur(16px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.cabecalho-principal__logo {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--cor-texto-principal);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.cabecalho-principal__edicao {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--cor-terracota-nobre);
+  font-weight: 700;
+}
+
+.cabecalho-principal__navegacao {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.cabecalho-principal__link {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--cor-texto-secundario);
+  padding: 6px 0;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.cabecalho-principal__link:hover {
+  color: var(--cor-texto-principal);
+}
+
+.cabecalho-principal__link.ativo {
+  color: var(--cor-terracota-nobre);
+}
+
+.cabecalho-principal__link.ativo::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--cor-terracota-nobre);
+}
+
+.cabecalho-principal__acoes {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ---------------------------------------------------------
+// Nome do bloco: Botoes com estilo de alfaiataria digital
+// --------------------------------------------------------- */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 28px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-radius: var(--raio-borda-arredondado);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+}
+
+.botao--primario {
+  background-color: var(--cor-texto-principal);
+  color: #FFFFFF;
+}
+
+.botao--primario:hover {
+  background-color: #050505;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(26, 24, 22, 0.25);
+}
+
+.botao--secundario {
+  background-color: transparent;
+  color: var(--cor-texto-principal);
+  border-color: var(--cor-borda);
+}
+
+.botao--secundario:hover {
+  border-color: var(--cor-texto-principal);
+  background-color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.botao--link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--cor-terracota-nobre);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.botao--link:hover {
+  text-decoration: underline;
+}
+
+.botao--total {
+  width: 100%;
+}
+
+.botao--pequeno {
+  padding: 8px 18px;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+/* ---------------------------------------------------------
+// Nome do bloco: Formularios com estetica minimalista
+// --------------------------------------------------------- */
+.grupo-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.grupo-formulario label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--cor-texto-secundario);
+}
+
+.campo-entrada,
+.campo-selecao,
+.campo-texto-longo {
+  padding: 14px 18px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-borda-pequeno);
+  font-size: 14px;
+  color: var(--cor-texto-principal);
+  background-color: #FFFFFF;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.campo-entrada:focus,
+.campo-selecao:focus,
+.campo-texto-longo:focus {
+  outline: none;
+  border-color: var(--cor-borda-foco);
+  box-shadow: 0 0 0 3px rgba(143, 61, 44, 0.08);
+}
+
+.campo-texto-longo {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.campo-com-acao {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.campo-com-acao .campo-entrada {
+  padding-right: 76px;
+}
+
+.botao-acao-campo {
+  position: absolute;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--cor-texto-suave);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.botao-acao-campo:hover {
+  color: var(--cor-terracota-nobre);
+}
+
+/* ---------------------------------------------------------
+// Nome do bloco: Etiquetas discretas e de catalogo
+// --------------------------------------------------------- */
+.etiqueta {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 2px;
+}
+
+.etiqueta--troca {
+  background-color: var(--cor-terracota-suave);
+  color: var(--cor-terracota-nobre);
+}
+
+.etiqueta--destaque {
+  background-color: var(--cor-ocre-suave);
+  color: var(--cor-ocre-editorial);
+}
+
+.etiqueta--status {
+  background-color: var(--cor-verde-salvia-suave);
+  color: var(--cor-verde-salvia);
+}
+
+/* ---------------------------------------------------------
+// Nome do bloco: Autocompletar / Lista de Sugestoes
+// --------------------------------------------------------- */
+.campo-com-sugestoes {
+  position: relative;
+  width: 100%;
+}
+
+.lista-sugestoes {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background-color: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-borda-pequeno);
+  box-shadow: var(--sombra-elevada);
+  z-index: 1000;
+  max-height: 280px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.item-sugestao {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid var(--cor-borda-sutil);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.item-sugestao:last-child {
+  border-bottom: none;
+}
+
+.item-sugestao:hover {
+  background-color: var(--cor-marfim-quente);
+}
+
+.item-sugestao__capa {
+  width: 32px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: var(--sombra-livro);
+}
+
+.item-sugestao__capa-placeholder {
+  width: 32px;
+  height: 48px;
+  background-color: var(--cor-borda);
+  border-radius: 2px;
+}
+
+.item-sugestao__detalhes {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-sugestao__titulo {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cor-texto-principal);
+}
+
+.item-sugestao__autor {
+  font-size: 12px;
+  color: var(--cor-texto-secundario);
+}
