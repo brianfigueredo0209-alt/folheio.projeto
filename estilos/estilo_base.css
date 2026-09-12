@@ -75,3 +75,34 @@ button, input, select, textarea {
   font-family: inherit;
 }
 
+
+
+/* ---------------------------------------------------------
+// Nome do bloco: Bloqueio de acesso mobile
+// --------------------------------------------------------- */
+#bloqueio-mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--cor-superficie);
+  z-index: 999999;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  #bloqueio-mobile-overlay {
+    display: flex !important;
+  }
+  
+  body > *:not(#bloqueio-mobile-overlay) {
+    display: none !important;
+  }
+}
+

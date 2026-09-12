@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
   configurarAreaDeCarregamentoDeFoto();
   configurarEnvioDeMensagensNoChat();
   configurarFiltroDeConversas();
+  configurarBloqueioMobile();
 });
 
 // ---------------------------------------------------------
@@ -130,4 +131,21 @@ function configurarFiltroDeConversas() {
       }
     });
   });
+}
+
+
+// ---------------------------------------------------------
+// Nome do bloco: Bloqueio de acesso via navegadores mobile
+// ---------------------------------------------------------
+function configurarBloqueioMobile() {
+  const containerMobile = document.createElement('div');
+  containerMobile.id = 'bloqueio-mobile-overlay';
+  containerMobile.innerHTML = `
+    <div style="font-size: 32px; font-weight: 700; margin-bottom: 24px;">FOLHEIO</div>
+    <h2 style="font-size: 20px; margin-bottom: 16px; color: var(--cor-texto-principal);">Acesso pelo Computador</h2>
+    <p style="font-size: 16px; line-height: 1.6; color: var(--cor-texto-secundario); max-width: 320px;">
+      Acesse nossa plataforma web pelo seu computador, ou baixe nosso aplicativo nas lojas (Play Store e Apple Store) em breve!
+    </p>
+  `;
+  document.body.appendChild(containerMobile);
 }
