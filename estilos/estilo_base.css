@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
 
 /* ---------------------------------------------------------
 // Nome do bloco: Variaveis e paleta de cores editorial contemporanea
@@ -157,40 +157,32 @@ button, input, select, textarea {
 
 .bloqueio-mobile__lojas {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  justify-content: center;
+  gap: 24px;
 }
 
 .bloqueio-mobile__botao-loja {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
   background-color: var(--cor-fundo);
   border: 1px solid var(--cor-borda);
-  padding: 12px 20px;
-  border-radius: 8px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
   color: var(--cor-texto-principal);
   transition: background-color 0.2s ease, transform 0.2s ease;
   cursor: default;
 }
 
+.bloqueio-mobile__botao-loja svg {
+  width: 28px;
+  height: 28px;
+}
+
 .bloqueio-mobile__botao-loja:hover {
   background-color: #e8e4db;
-}
-
-.botao-loja__textos {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-}
-
-.botao-loja__textos span {
-  font-size: 11px;
-  color: var(--cor-texto-suave);
-}
-
-.botao-loja__textos strong {
-  font-size: 16px;
-  font-weight: 600;
+  transform: translateY(-2px);
 }
 

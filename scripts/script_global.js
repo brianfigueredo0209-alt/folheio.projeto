@@ -157,19 +157,11 @@ function configurarBloqueioMobile() {
       
       <p class="bloqueio-mobile__texto-secundario">Em breve nas lojas de aplicativo:</p>
       <div class="bloqueio-mobile__lojas">
-        <div class="bloqueio-mobile__botao-loja">
+        <div class="bloqueio-mobile__botao-loja" title="App Store" aria-label="App Store">
           ${iconeApple}
-          <div class="botao-loja__textos">
-            <span>Baixar na</span>
-            <strong>App Store</strong>
-          </div>
         </div>
-        <div class="bloqueio-mobile__botao-loja">
+        <div class="bloqueio-mobile__botao-loja" title="Google Play" aria-label="Google Play">
           ${iconePlayStore}
-          <div class="botao-loja__textos">
-            <span>Disponível no</span>
-            <strong>Google Play</strong>
-          </div>
         </div>
       </div>
     </div>
