@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anunciar — Folheio</title>
+  <link rel="icon" type="image/jpeg" href="../assets/favicon.jpg">
+  <link rel="stylesheet" href="../estilos/estilo_base.css?v=2">
+  <link rel="stylesheet" href="../estilos/estilo_componentes.css?v=2">
+  <link rel="stylesheet" href="../estilos/estilo_paginas.css?v=2">
+  <script src="../scripts/script_global.js?v=2" defer></script>
+  <script src="../scripts/publicar_livro.js?v=2" defer></script>
+</head>
+
+<body>
+
+  <!-- ---------------------------------------------------------
+  // Nome do bloco: Cabecalho superior no formato atelie literario
+  // --------------------------------------------------------- -->
+  <header class="cabecalho-principal">
+    <a href="encontre_livros.html" class="cabecalho-principal__logo">
+      FOLHEIO
+      <span class="cabecalho-principal__edicao">Curadoria</span>
+    </a>
+
+    <nav class="cabecalho-principal__navegacao" aria-label="Navegacao principal">
+      <a href="encontre_livros.html" class="cabecalho-principal__link">Livros</a>
+      <a href="publicar_livro.html" class="cabecalho-principal__link ativo">Anunciar</a>
+      <a href="mensagens.html" class="cabecalho-principal__link">Mensagens</a>
+      <a href="meu_perfil.html" class="cabecalho-principal__link">Perfil</a>
+    </nav>
+
+    <div class="cabecalho-principal__acoes">
+      <a href="publicar_livro.html" class="botao botao--primario">
+        + Anunciar livro
+      </a>
+    </div>
+  </header>
+
+  <!-- ---------------------------------------------------------
+  // Nome do bloco: Formulario estruturado em etapas editoriais
+  // --------------------------------------------------------- -->
+  <main class="recipiente-centralizado">
+    <section class="cabecalho-secao">
+      <h1 class="cabecalho-secao__titulo">Disponibilizar exemplar para circulação</h1>
+      <p class="cabecalho-secao__subtitulo">Preencha os detalhes do livro para catalogá-lo na rede de trocas</p>
+    </section>
+
+    <form action="meu_perfil.html" method="get" class="formulario-publicacao-editorial">
+
+      <!-- Coluna Esquerda: A Obra -->
+      <section class="painel-campos-editorial">
+        <div class="secao-passo-editorial__cabecalho">
+          <span class="secao-passo-editorial__titulo">A Obra</span>
+        </div>
+
+        <div class="grupo-formulario">
+          <label for="campo-titulo">Título do livro</label>
+          <input type="text" id="campo-titulo" class="campo-entrada" placeholder="Exemplo: Grande Sertão: Veredas" required>
+        </div>
+
+        <div class="grupo-formulario">
+          <label for="campo-autor">Autor da obra</label>
+          <input type="text" id="campo-autor" class="campo-entrada" placeholder="Nome do autor" required>
+        </div>
+
+        <!-- Área da Capa reposicionada (agora faz sentido após o título) -->
+        <div class="painel-upload-editorial" id="painel-capa-container" style="height: 340px; margin-top: 12px;">
+          <div id="conteudo-upload-vazio" style="display: flex; flex-direction: column; align-items: center;">
+            <svg class="painel-upload-editorial__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span class="painel-upload-editorial__titulo">Fotografia da Capa</span>
+            <span class="painel-upload-editorial__dica">
+              Clique aqui para enviar a capa manualmente.
+            </span>
+          </div>
+          
+          <div id="estado-carregando" style="display: none; flex-direction: column; align-items: center;">
+            <span class="painel-upload-editorial__titulo">Buscando capa no acervo...</span>
+          </div>
+
+          <img id="preview-capa" src="" alt="Capa da obra" style="display: none; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; box-shadow: var(--sombra-livro); transition: transform 0.3s ease;">
+          <input type="hidden" id="url-capa-api" name="url_capa_api">
+          
+          <input type="file" id="arquivo-capa" class="painel-upload-editorial__entrada-oculta" accept="image/png, image/jpeg">
+        </div>
+      </section>
+
+      <!-- Coluna Direita: A Troca -->
+      <section class="painel-campos-editorial">
+        <div class="secao-passo-editorial__cabecalho">
+          <span class="secao-passo-editorial__titulo">A Troca</span>
+        </div>
+
+        <div class="grupo-formulario">
+          <label for="campo-genero">Gênero literário</label>
+          <select id="campo-genero" class="campo-selecao" required>
+            <option value="" disabled selected>Selecione um gênero</option>
+            <option value="romance">Romance</option>
+            <option value="poesia">Poesia & Crônica</option>
+            <option value="filosofia">Filosofia & Ensaios</option>
+            <option value="fantasia">Ficção Especulativa & Fantasia</option>
+            <option value="suspense">Suspense & Policial</option>
+            <option value="biografia">Biografia & Memórias</option>
+            <option value="tecnico">Acadêmico & Técnico</option>
+          </select>
+        </div>
+
+        <div class="grupo-formulario">
+          <label for="campo-estado">Estado de conservação</label>
+          <select id="campo-estado" class="campo-selecao" required>
+            <option value="" disabled selected>Avalie o estado das páginas e capa</option>
+            <option value="novo">Impecável (novo ou nunca folheado)</option>
+            <option value="seminovo">Excelente (sem anotações ou desgastes)</option>
+            <option value="bom">Bom estado (com leves marcas naturais de leitura)</option>
+            <option value="marcas">Com marcas do tempo ou grifos do leitor</option>
+          </select>
+        </div>
+
+        <div class="grupo-formulario">
+          <label for="campo-descricao">Notas do leitor sobre a edição</label>
+          <textarea id="campo-descricao" class="campo-texto-longo" placeholder="Comente sobre a tradução, editora, papel ou suas impressões sobre o livro..." required></textarea>
+        </div>
+
+        <div class="grupo-formulario">
+          <label for="campo-desejo">O que você gostaria em contrapartida?</label>
+          <input type="text" id="campo-desejo" class="campo-entrada" placeholder="Ex.: Títulos de Gabriel García Márquez ou romance contemporâneo" required>
+        </div>
+
+        <div class="acoes-formulario">
+          <a href="encontre_livros.html" class="botao botao--secundario">Cancelar</a>
+          <button type="submit" class="botao botao--primario">Publicar anúncio</button>
+        </div>
+      </section>
+
+    </form>
+  </main>
+
+</body>
+
+</html>
