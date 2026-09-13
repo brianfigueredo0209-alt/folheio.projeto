@@ -1,26 +1,29 @@
-### AL ###
-#Template for AL projects for Dynamics 365 Business Central
-#launch.json folder
-.vscode/
-#Cache folder
-.alcache/
-#Symbols folder
-.alpackages/
-#Snapshots folder
-.snapshots/
-#Testing Output folder
-.output/
-#Extension App-file
-*.app
-#Rapid Application Development File
-rad.json
-#Translation Base-file
-*.g.xlf
-#License-files
-*.bclicense
-*.flf
-#Test results file
-TestResults.xml
+# Dependencias Node.js — nunca subir para o repositorio
+node_modules/
 
-# Arquivos de documentação do projeto
+# Variaveis de ambiente e segredos
+.env
+.env.local
+.env.*.local
+
+# Logs de execucao
+*.log
+npm-debug.log*
+
+# Cache do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Diretorio de build do Vue (gerado sob demanda via npm run build)
+folheio-vue/dist/
+
+# O dist/ do widget React NAO esta aqui intencionalmente:
+# ele e versionado pois a pagina encontre_livros.html depende diretamente
+# do arquivo folheio-react-widget/dist/widget.js para funcionar
+
+# Arquivo de instrucoes internas do agente de desenvolvimento
 GEMINI.md
+
+# Cache do editor
+.vscode/
+.idea/

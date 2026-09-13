@@ -1,0 +1,188 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
+
+/* ---------------------------------------------------------
+// Nome do bloco: Variaveis e paleta de cores editorial contemporanea
+// --------------------------------------------------------- */
+:root {
+  /* Tons Principais de Fundo e Superficie */
+  --cor-fundo: #F8F6F0;
+  --cor-superficie: #FFFFFF;
+  --cor-marfim-quente: #F1ECE3;
+  --cor-pergaminho: #EBE5D8;
+
+  /* Tipografia Nobre */
+  --cor-texto-principal: #1A1816;
+  --cor-texto-secundario: #5E5851;
+  --cor-texto-suave: #8F877D;
+
+  /* Cores de Acento Nobre */
+  --cor-terracota-nobre: #8F3D2C;
+  --cor-terracota-hover: #752F21;
+  --cor-terracota-suave: #F4EAE6;
+
+  --cor-verde-salvia: #2A483E;
+  --cor-verde-salvia-suave: #E9F1ED;
+
+  --cor-ocre-editorial: #A67C43;
+  --cor-ocre-suave: #F7F3EB;
+
+  /* Linhas e Divisores Delicados */
+  --cor-borda: #E2DDD5;
+  --cor-borda-sutil: #ECE8E1;
+  --cor-borda-foco: #8F3D2C;
+
+  /* Sombras Naturais de Folheio e Iluminacao Difusa */
+  --sombra-livro: -4px 8px 24px rgba(26, 24, 22, 0.08), -1px 2px 6px rgba(26, 24, 22, 0.04);
+  --sombra-elevada: 0 20px 40px -8px rgba(26, 24, 22, 0.07);
+  --sombra-suave: 0 2px 12px rgba(26, 24, 22, 0.03);
+
+  /* Raios de Borda */
+  --raio-borda-pequeno: 4px;
+  --raio-borda-medio: 10px;
+  --raio-borda-arredondado: 40px;
+}
+
+/* ---------------------------------------------------------
+// Nome do bloco: Reset e fundamentos tipograficos arrojados
+// --------------------------------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto-principal);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .marca-editorial, .numero-editorial {
+  font-family: 'Cormorant Garamond', Garamond, Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+
+
+/* ---------------------------------------------------------
+// Nome do bloco: Bloqueio de acesso mobile
+// --------------------------------------------------------- */
+#bloqueio-mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--cor-superficie);
+  z-index: 999999;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  #bloqueio-mobile-overlay {
+    display: flex !important;
+  }
+  
+  body > *:not(#bloqueio-mobile-overlay) {
+    display: none !important;
+  }
+}
+
+
+
+/* Estilos internos do card de bloqueio mobile */
+.bloqueio-mobile__card {
+  background-color: var(--cor-superficie);
+  padding: 40px;
+  border-radius: var(--raio-borda-medio);
+  box-shadow: var(--sombra-suave);
+  max-width: 90%;
+  width: 380px;
+  border: 1px solid var(--cor-borda);
+}
+
+.bloqueio-mobile__logo {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--cor-terracota-nobre);
+}
+
+.bloqueio-mobile__titulo {
+  font-size: 22px;
+  margin-bottom: 12px;
+  color: var(--cor-texto-principal);
+}
+
+.bloqueio-mobile__texto {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--cor-texto-secundario);
+  margin-bottom: 32px;
+}
+
+.bloqueio-mobile__divisor {
+  height: 1px;
+  background-color: var(--cor-borda);
+  margin-bottom: 24px;
+}
+
+.bloqueio-mobile__texto-secundario {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cor-texto-suave);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.bloqueio-mobile__lojas {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 24px;
+}
+
+.bloqueio-mobile__botao-loja {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--cor-fundo);
+  border: 1px solid var(--cor-borda);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  color: var(--cor-texto-principal);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: default;
+}
+
+.bloqueio-mobile__botao-loja svg {
+  width: 28px;
+  height: 28px;
+}
+
+.bloqueio-mobile__botao-loja:hover {
+  background-color: #e8e4db;
+  transform: translateY(-2px);
+}
+
