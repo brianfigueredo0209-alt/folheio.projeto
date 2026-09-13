@@ -4,6 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Politica de seguranca de conteudo: restringe origens de scripts, estilos e imagens -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; img-src 'self' https://covers.openlibrary.org data: blob:; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
   <title>Acesso — FOLHEIO</title>
   <link rel="icon" type="image/jpeg" href="assets/favicon.jpg">
   <link rel="stylesheet" href="estilos/estilo_base.css?v=2">
@@ -46,7 +49,7 @@
         <h2 class="caixa-formulario-login__titulo">Entrar na sua estante</h2>
         <p class="caixa-formulario-login__subtitulo">Insira suas credenciais para gerenciar suas trocas</p>
 
-        <form action="paginas/encontre_livros.html" method="get">
+        <form action="paginas/encontre_livros.html" method="post">
           <div class="grupo-formulario">
             <label for="campo-email">Endereço de e-mail</label>
             <input type="email" id="campo-email" class="campo-entrada" placeholder="seu.nome@exemplo.com"
