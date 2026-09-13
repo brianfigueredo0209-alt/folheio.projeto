@@ -103,7 +103,7 @@ FOLHEIO-WEB/
 
 | Documento | Conteudo |
 |---|---|
-| [ENTENDENDO_A_ARQUITETURA.md](./ENTENDENDO_A_ARQUITETURA.md) | Visao geral da arquitetura completa (frontend, backend, banco) |
+| [DISSECACAO_ARQUITETURA.md](./DISSECACAO_ARQUITETURA.md) | Visao geral da arquitetura completa (frontend, backend, banco) |
 | [VUE_SPA.md](./VUE_SPA.md) | Como o Vue.js foi integrado, componentes criados e conceitos utilizados |
 | [REACT_WIDGET.md](./REACT_WIDGET.md) | Como o React foi integrado como micro-frontend e como o widget funciona |
 | [FRAMEWORKS_NO_PROJETO.md](./FRAMEWORKS_NO_PROJETO.md) | Comparativo direto entre Vue e React com exemplos de codigo lado a lado |
