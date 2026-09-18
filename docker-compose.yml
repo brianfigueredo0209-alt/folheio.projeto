@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: folheio_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: folheio_user
+      POSTGRES_PASSWORD: folheio_password
+      POSTGRES_DB: folheio_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - folheio-network
+
+  mongodb:
+    image: mongo:6.0
+    container_name: folheio_mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - folheio-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: folheio_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - folheio-network
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data:
+
+networks:
+  folheio-network:
+    driver: bridge
