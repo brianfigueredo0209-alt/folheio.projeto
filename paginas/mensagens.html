@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Politica de seguranca de conteudo: restringe origens de scripts, estilos e imagens -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; img-src 'self' https://covers.openlibrary.org data: blob:; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
+  <title>Mensagens — Folheio</title>
+  <link rel="icon" type="image/jpeg" href="../assets/favicon.jpg">
+  <link rel="stylesheet" href="../estilos/estilo_base.css">
+  <link rel="stylesheet" href="../estilos/estilo_componentes.css">
+  <link rel="stylesheet" href="../estilos/estilo_paginas.css">
+  <script src="../scripts/script_global.js" defer></script>
+</head>
+
+<body>
+
+  <!-- ---------------------------------------------------------
+  // Nome do bloco: Cabecalho superior no formato atelie literario
+  // --------------------------------------------------------- -->
+  <header class="cabecalho-principal">
+    <a href="encontre_livros.html" class="cabecalho-principal__logo">
+      FOLHEIO
+      <span class="cabecalho-principal__edicao">Curadoria</span>
+    </a>
+
+    <nav class="cabecalho-principal__navegacao" aria-label="Navegacao principal">
+      <a href="encontre_livros.html" class="cabecalho-principal__link">Livros</a>
+      <a href="publicar_livro.html" class="cabecalho-principal__link">Anunciar</a>
+      <a href="mensagens.html" class="cabecalho-principal__link ativo">Mensagens</a>
+      <a href="meu_perfil.html" class="cabecalho-principal__link">Perfil</a>
+    </nav>
+
+    <div class="cabecalho-principal__acoes">
+      <a href="publicar_livro.html" class="botao botao--primario">
+        + Anunciar livro
+      </a>
+    </div>
+  </header>
+
+  <!-- ---------------------------------------------------------
+  // Nome do bloco: Dialogos e acordos de troca entre leitores
+  // --------------------------------------------------------- -->
+  <main class="recipiente-centralizado">
+    <section class="cabecalho-secao">
+      <h1 class="cabecalho-secao__titulo">Diálogos de Circulação</h1>
+      <p class="cabecalho-secao__subtitulo"></p>
+    </section>
+
+    <div class="layout-mensagens-editorial">
+
+      <!-- Lista de leitores e trocas ativas -->
+      <aside class="painel-conversas">
+        <div class="painel-conversas__cabecalho">
+          <h2 class="painel-conversas__titulo">Leitores</h2>
+          <input type="search" class="painel-conversas__busca" placeholder="Filtrar por obra ou leitor...">
+        </div>
+
+        <div class="painel-conversas__lista">
+          <div class="item-conversa item-conversa--ativo">
+            <div class="item-conversa__avatar">A</div>
+            <div class="item-conversa__detalhes">
+              <div class="item-conversa__topo">
+                <span class="item-conversa__nome">Ana &bull; Livro 1</span>
+                <span class="item-conversa__horario">14:32</span>
+              </div>
+              <p class="item-conversa__mensagem">Podemos combinar a troca?</p>
+            </div>
+          </div>
+
+          <div class="item-conversa">
+            <div class="item-conversa__avatar">J</div>
+            <div class="item-conversa__detalhes">
+              <div class="item-conversa__topo">
+                <span class="item-conversa__nome">João &bull; Livro 2</span>
+                <span class="item-conversa__horario">Ontem</span>
+              </div>
+              <p class="item-conversa__mensagem">O livro já está embalado para envio.</p>
+            </div>
+          </div>
+
+          <div class="item-conversa">
+            <div class="item-conversa__avatar">M</div>
+            <div class="item-conversa__detalhes">
+              <div class="item-conversa__topo">
+                <span class="item-conversa__nome">Maria &bull; Livro 3</span>
+                <span class="item-conversa__horario">Seg</span>
+              </div>
+              <p class="item-conversa__mensagem">Tem interesse em outros títulos?</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Painel ativo do diálogo -->
+      <section class="janela-chat">
+        <header class="janela-chat__cabecalho">
+          <div class="janela-chat__avatar-destaque">A</div>
+          <div class="janela-chat__info-usuario">
+            <span class="janela-chat__nome">Ana Carolina &bull; A Promessa</span>
+            <span class="janela-chat__status">Em linha para negociação em Maceió</span>
+          </div>
+        </header>
+
+        <div class="janela-chat__historico">
+          <div class="mensagem-container mensagem-container--recebida">
+            <div class="balao-mensagem balao-mensagem--recebida">
+              Olá! Encontrei seu anúncio de Livro 1. Gostaria de saber se a edição ainda está disponível para troca pelo
+              meu exemplar de clássicos modernos?
+            </div>
+            <span class="mensagem-horario">14:28</span>
+          </div>
+
+          <div class="mensagem-container mensagem-container--enviada">
+            <div class="balao-mensagem balao-mensagem--enviada">
+              Olá, Ana! Sim, a edição está em perfeito estado e pronta para circular. Vi sua estante e tenho interesse
+              sim. Podemos combinar o encontro?
+            </div>
+            <span class="mensagem-horario">14:32</span>
+          </div>
+        </div>
+
+        <form class="janela-chat__entrada">
+          <input type="text" class="campo-entrada janela-chat__campo"
+            placeholder="Escreva sua proposta ou mensagem para o leitor..." required>
+          <button type="submit" class="botao botao--primario">Enviar</button>
+        </form>
+      </section>
+
+    </div>
+  </main>
+
+</body>
+
+</html>

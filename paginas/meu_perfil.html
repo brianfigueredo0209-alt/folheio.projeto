@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Politica de seguranca de conteudo: restringe origens de scripts, estilos e imagens -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; img-src 'self' https://covers.openlibrary.org data: blob:; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
+  <title>Perfil — Folheio</title>
+  <link rel="icon" type="image/jpeg" href="../assets/favicon.jpg">
+  <link rel="stylesheet" href="../estilos/estilo_base.css">
+  <link rel="stylesheet" href="../estilos/estilo_componentes.css">
+  <link rel="stylesheet" href="../estilos/estilo_paginas.css">
+  <script src="../scripts/script_global.js" defer></script>
+</head>
+
+<body>
+
+  <!-- ---------------------------------------------------------
+  // Nome do bloco: Cabecalho superior no formato atelie literario
+  // --------------------------------------------------------- -->
+  <header class="cabecalho-principal">
+    <a href="encontre_livros.html" class="cabecalho-principal__logo">
+      FOLHEIO
+      <span class="cabecalho-principal__edicao">Curadoria</span>
+    </a>
+
+    <nav class="cabecalho-principal__navegacao" aria-label="Navegacao principal">
+      <a href="encontre_livros.html" class="cabecalho-principal__link">Livros</a>
+      <a href="publicar_livro.html" class="cabecalho-principal__link">Anunciar</a>
+      <a href="mensagens.html" class="cabecalho-principal__link">Mensagens</a>
+      <a href="meu_perfil.html" class="cabecalho-principal__link ativo">Perfil</a>
+    </nav>
+
+    <div class="cabecalho-principal__acoes">
+      <a href="publicar_livro.html" class="botao botao--primario">
+        + Anunciar livro
+      </a>
+    </div>
+  </header>
+
+  <!-- ---------------------------------------------------------
+  // Nome do bloco: Perfil autoral e gerenciamento da estante
+  // --------------------------------------------------------- -->
+  <main class="recipiente-centralizado">
+
+    <!-- Painel do Leitor com Estilo Editorial Assimetrico -->
+    <section class="painel-perfil-editorial">
+      <div class="cartao-perfil__avatar-editorial">FL</div>
+
+      <div class="cartao-perfil__informacoes">
+        <div class="cartao-perfil__titulo-pre">Leitor & Curador &bull; Maceió - AL</div>
+        <h1 class="cartao-perfil__nome">Felipe Lanches</h1>
+        <p class="cartao-perfil__localizacao">Membro ativo da rede de circulação sustentável desde 2026</p>
+
+        <div class="cartao-perfil__estatisticas">
+          <div class="item-estatistica">
+            <span class="item-estatistica__numero">04</span>
+            <span class="item-estatistica__rotulo">Obras em Circulação</span>
+          </div>
+          <div class="item-estatistica">
+            <span class="item-estatistica__numero">03</span>
+            <span class="item-estatistica__rotulo">Trocas Concluídas</span>
+          </div>
+          <div class="item-estatistica">
+            <span class="item-estatistica__numero">100%</span>
+            <span class="item-estatistica__rotulo">Avaliação Positiva</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" class="botao botao--secundario">
+          Editar estante
+        </button>
+      </div>
+    </section>
+
+    <!-- Obras do Leitor com Grade Editorial -->
+    <section>
+      <h2 class="secao-meus-livros__titulo">Títulos Cadastrados</h2>
+
+      <div class="grade-editorial-livros">
+
+        <!-- Obra 01 -->
+        <article class="cartao-livro-editorial">
+          <span class="cartao-livro-editorial__numero">Nº 01</span>
+
+
+          <img src="https://covers.openlibrary.org/b/id/14618693-L.jpg" alt="Capa de Ensaio Sobre a Cegueira"
+            class="cartao-livro-editorial__capa-img">
+
+          <div class="cartao-livro-editorial__detalhes">
+            <h3 class="cartao-livro-editorial__titulo">Ensaio Sobre a Cegueira</h3>
+            <p class="cartao-livro-editorial__autor">José Saramago</p>
+            <div class="cartao-livro-editorial__metadados">
+              <span class="etiqueta etiqueta--status">Em negociação</span>
+              <span class="cartao-livro-editorial__localizacao">Edição Especial</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Obra 02 -->
+        <article class="cartao-livro-editorial">
+          <span class="cartao-livro-editorial__numero">Nº 02</span>
+
+
+          <img src="https://covers.openlibrary.org/b/id/15228531-L.jpg" alt="Capa de Duna"
+            class="cartao-livro-editorial__capa-img">
+
+          <div class="cartao-livro-editorial__detalhes">
+            <h3 class="cartao-livro-editorial__titulo">Duna</h3>
+            <p class="cartao-livro-editorial__autor">Frank Herbert</p>
+            <div class="cartao-livro-editorial__metadados">
+              <span class="etiqueta etiqueta--troca">Disponível</span>
+              <span class="cartao-livro-editorial__localizacao">Capa Dura</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Obra 03 -->
+        <article class="cartao-livro-editorial">
+          <span class="cartao-livro-editorial__numero">Nº 03</span>
+
+
+          <img src="https://covers.openlibrary.org/b/id/14849956-L.jpg" alt="Capa de O Hobbit"
+            class="cartao-livro-editorial__capa-img">
+
+          <div class="cartao-livro-editorial__detalhes">
+            <h3 class="cartao-livro-editorial__titulo">O Hobbit</h3>
+            <p class="cartao-livro-editorial__autor">J.R.R. Tolkien</p>
+            <div class="cartao-livro-editorial__metadados">
+              <span class="etiqueta etiqueta--troca">Disponível</span>
+              <span class="cartao-livro-editorial__localizacao">Ilustrado</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+    </section>
+  </main>
+
+</body>
+
+</html>

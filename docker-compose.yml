@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: folheio_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: folheio_user
+      POSTGRES_PASSWORD: folheio_password
+      POSTGRES_DB: folheio_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - folheio-network
+
+  mongodb:
+    image: mongo:6.0
+    container_name: folheio_mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - folheio-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: folheio_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - folheio-network
+
+  api-core:
+    build:
+      context: ./backend/api-core
+      dockerfile: Dockerfile
+    container_name: folheio_api_core
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+    networks:
+      - folheio-network
+
+  ai-service:
+    build:
+      context: ./backend/ai-service
+      dockerfile: Dockerfile
+    container_name: folheio_ai_service
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - folheio-network
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data:
+
+networks:
+  folheio-network:
+    driver: bridge
