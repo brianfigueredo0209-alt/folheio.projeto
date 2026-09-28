@@ -58,6 +58,19 @@ services:
     networks:
       - folheio-network
 
+  ai-service:
+    build:
+      context: ./backend/ai-service
+      dockerfile: Dockerfile
+    container_name: folheio_ai_service
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - folheio-network
+
 volumes:
   postgres_data:
   mongo_data:
