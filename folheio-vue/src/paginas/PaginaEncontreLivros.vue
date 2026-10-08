@@ -1,160 +1,86 @@
 <template>
-  <!-- ---------------------------------------------------------
-  Nome do bloco: Pagina de catalogo de livros disponiveis para troca
-  --------------------------------------------------------- -->
   <CabecalhoPrincipal />
-
   <main class="recipiente-centralizado">
-
-    <!-- Vitrine de Destaque da Curadoria -->
-    <section class="vitrine-curadoria">
+    <section class="cabecalho-secao">
+      <h1 class="cabecalho-secao__titulo">Encontre sua proxima leitura</h1>
+      <p class="cabecalho-secao__subtitulo">Livros publicados pelos leitores no site e no aplicativo.</p>
+    </section>
+    <section v-if="livrosFiltrados[0]" class="vitrine-curadoria">
       <div class="vitrine-curadoria__detalhes">
-        <span class="vitrine-curadoria__rotulo">Obra em Evidencia &bull; Esta Semana</span>
-        <h1 class="vitrine-curadoria__titulo">Cem Anos de Solidao</h1>
-        <p class="vitrine-curadoria__sinopse">
-          Exemplar capa dura em estado impecavel disponivel para troca em Maceio.
-          O leitor busca edicoes de literatura latino-americana ou classicos do seculo XX.
-        </p>
-        <div style="display: flex; gap: 14px; align-items: center;">
-          <RouterLink to="/mensagens" class="botao botao--primario">Propor troca</RouterLink>
-          <span style="font-size: 13px; color: var(--cor-texto-suave);">Proprietario: Felipe Lanches</span>
-        </div>
+        <span class="vitrine-curadoria__rotulo">Obra em evidencia</span>
+        <h2 class="vitrine-curadoria__titulo">{{ livrosFiltrados[0].titulo }}</h2>
+        <p class="vitrine-curadoria__sinopse">{{ livrosFiltrados[0].descricao }}</p>
+        <span>Proprietario: {{ livrosFiltrados[0].proprietario }}</span>
       </div>
-
       <div class="vitrine-curadoria__capa-container">
-        <img
-          src="https://covers.openlibrary.org/b/id/12627383-L.jpg"
-          alt="Capa de Cem Anos de Solidao"
-          class="vitrine-curadoria__capa"
-        />
+        <img :src="livrosFiltrados[0].urlCapa" :alt="'Capa de ' + livrosFiltrados[0].titulo" class="vitrine-curadoria__capa" @error="tratarErroAoCarregarCapa" />
       </div>
     </section>
-
-    <!-- Barra de pesquisa com filtragem reativa -->
-    <search class="barra-pesquisa-editorial" role="search">
-      <input
-        type="search"
-        v-model="termoDePesquisa"
-        class="barra-pesquisa-editorial__campo"
-        placeholder="Pesquise por titulo, autor, genero ou cidade..."
-        aria-label="Buscar no catalogo"
-      />
-      <button type="button" class="botao botao--secundario" style="padding: 8px 18px;">
-        Filtros avancados
-      </button>
+    <search class="barra-pesquisa-editorial">
+      <input v-model="termoDePesquisa" type="search" class="barra-pesquisa-editorial__campo" placeholder="Titulo, autor, genero ou cidade..." aria-label="Buscar livros" />
+      <select v-model="modalidade" class="campo-selecao" aria-label="Modalidade da oferta">
+        <option value="">Todas as ofertas</option><option value="troca">Troca</option><option value="venda">Venda</option><option value="doacao">Doacao</option>
+      </select>
+      <button class="botao botao--secundario" :disabled="carregando" @click="carregarLivros">Atualizar</button>
     </search>
-
-    <!-- Grade editorial com livros filtrados dinamicamente -->
+    <p v-if="erroDaPagina" role="alert">{{ erroDaPagina }}</p>
+    <p v-if="carregando" role="status">Carregando catalogo...</p>
     <div class="grade-editorial-livros">
-      <article
-        v-for="livro in livrosFiltrados"
-        :key="livro.identificador"
-        class="cartao-livro-editorial"
-      >
-        <span class="cartao-livro-editorial__numero">N&#186; {{ livro.numero }}</span>
-
-        <img
-          :src="livro.urlCapa"
-          :alt="'Capa de ' + livro.titulo"
-          class="cartao-livro-editorial__capa-img"
-        />
-
+      <article v-for="livro in livrosFiltrados" :key="livro.identificador" class="cartao-livro-editorial">
+        <span class="cartao-livro-editorial__numero">Nº {{ livro.numero }}</span>
+        <img :src="livro.urlCapa" :alt="'Capa de ' + livro.titulo" class="cartao-livro-editorial__capa-img" @error="tratarErroAoCarregarCapa" />
         <div class="cartao-livro-editorial__detalhes">
           <h2 class="cartao-livro-editorial__titulo">{{ livro.titulo }}</h2>
           <p class="cartao-livro-editorial__autor">{{ livro.autor }}</p>
-
           <div class="cartao-livro-editorial__metadados">
-            <span :class="'etiqueta ' + livro.classeEtiqueta">{{ livro.etiqueta }}</span>
-            <span class="cartao-livro-editorial__localizacao">{{ livro.localizacao }}</span>
+            <span class="etiqueta etiqueta--troca">{{ livro.etiqueta }}</span>
+            <span class="cartao-livro-editorial__localizacao">{{ livro.cidade }}</span>
           </div>
         </div>
-
         <div class="cartao-livro-editorial__rodape">
-          <RouterLink to="/mensagens" class="botao botao--primario botao--total">
-            Tenho interesse
-          </RouterLink>
+          <RouterLink v-if="livro.proprietario_id === sessao?.usuario.identificador" to="/perfil" class="botao botao--secundario botao--total">Meu anuncio</RouterLink>
+          <button v-else class="botao botao--primario botao--total" :disabled="iniciandoConversa" @click="negociar(livro)">Tenho interesse</button>
         </div>
       </article>
-
-      <!-- Estado vazio: exibido quando a pesquisa nao retorna resultados -->
-      <p v-if="livrosFiltrados.length === 0" style="color: var(--cor-texto-suave); padding: 24px 0;">
-        Nenhum exemplar encontrado para a pesquisa informada.
-      </p>
     </div>
-
+    <p v-if="!carregando && !erroDaPagina && !livrosFiltrados.length">Nenhum exemplar encontrado. Publique a primeira obra ou altere sua busca.</p>
   </main>
 </template>
-
 <script setup>
 // ---------------------------------------------------------
-// Nome do bloco: Logica da pagina de catalogo de livros
-// Gerencia o catalogo estatico e a pesquisa reativa em tempo real
+// Nome do bloco: Catalogo compartilhado e negociacao vinculada ao anuncio
 // ---------------------------------------------------------
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import CabecalhoPrincipal from '../componentes/CabecalhoPrincipal.vue';
-
-// Termo digitado pelo usuario no campo de pesquisa
+import { requisitar, prepararLivro, tratarErroAoCarregarCapa, sessao } from '../servicos/api.js';
+const roteador = useRouter();
+const catalogoDeLivros = ref([]);
 const termoDePesquisa = ref('');
-
-// Catalogo de livros disponiveis para troca
-const catalogoDeLivros = ref([
-  {
-    identificador: 1,
-    numero: '01',
-    titulo: 'Little Fires Everywhere',
-    autor: 'Celeste Ng',
-    urlCapa: 'https://covers.openlibrary.org/b/id/12667447-L.jpg',
-    etiqueta: 'Disponivel',
-    classeEtiqueta: 'etiqueta--troca',
-    localizacao: 'Maceio - AL',
-  },
-  {
-    identificador: 2,
-    numero: '02',
-    titulo: 'Duna',
-    autor: 'Frank Herbert',
-    urlCapa: 'https://covers.openlibrary.org/b/id/15228531-L.jpg',
-    etiqueta: 'Ficcao Cientifica',
-    classeEtiqueta: 'etiqueta--destaque',
-    localizacao: 'Maceio - AL',
-  },
-  {
-    identificador: 3,
-    numero: '03',
-    titulo: 'O Hobbit',
-    autor: 'J.R.R. Tolkien',
-    urlCapa: 'https://covers.openlibrary.org/b/id/14849956-L.jpg',
-    etiqueta: 'Disponivel',
-    classeEtiqueta: 'etiqueta--troca',
-    localizacao: 'Maceio - AL',
-  },
-  {
-    identificador: 4,
-    numero: '04',
-    titulo: 'Ensaio Sobre a Cegueira',
-    autor: 'Jose Saramago',
-    urlCapa: 'https://covers.openlibrary.org/b/id/14618040-L.jpg',
-    etiqueta: 'Literatura',
-    classeEtiqueta: 'etiqueta--destaque',
-    localizacao: 'Maceio - AL',
-  },
-]);
-
-// Propriedade computada: filtra o catalogo com base no termo de pesquisa
+const modalidade = ref('');
+const carregando = ref(false);
+const iniciandoConversa = ref(false);
+const erroDaPagina = ref('');
 const livrosFiltrados = computed(() => {
-  const termoBuscaNormalizado = termoDePesquisa.value.toLowerCase().trim();
-
-  if (!termoBuscaNormalizado) {
-    return catalogoDeLivros.value;
-  }
-
-  return catalogoDeLivros.value.filter((livro) => {
-    return (
-      livro.titulo.toLowerCase().includes(termoBuscaNormalizado) ||
-      livro.autor.toLowerCase().includes(termoBuscaNormalizado) ||
-      livro.etiqueta.toLowerCase().includes(termoBuscaNormalizado) ||
-      livro.localizacao.toLowerCase().includes(termoBuscaNormalizado)
-    );
-  });
+  const termo = termoDePesquisa.value.trim().toLocaleLowerCase('pt-BR');
+  return catalogoDeLivros.value.filter(livro =>
+    (!modalidade.value || livro.modalidade === modalidade.value) &&
+    [livro.titulo, livro.autor, livro.genero, livro.cidade].join(' ').toLocaleLowerCase('pt-BR').includes(termo));
 });
+async function carregarLivros() {
+  carregando.value = true; erroDaPagina.value = '';
+  try { catalogoDeLivros.value = (await requisitar('/api/v1/livros')).livros.map(prepararLivro); }
+  catch (erro) { erroDaPagina.value = erro.message; }
+  finally { carregando.value = false; }
+}
+async function negociar(livro) {
+  if (!sessao.value) { await roteador.push('/'); return; }
+  iniciandoConversa.value = true; erroDaPagina.value = '';
+  try {
+    const conversa = await requisitar('/api/v1/conversas', { metodo: 'POST', dados: { livro_id: livro.identificador } });
+    await roteador.push({ path: '/mensagens', query: { conversa: conversa.identificador } });
+  } catch (erro) { erroDaPagina.value = erro.message; }
+  finally { iniciandoConversa.value = false; }
+}
+onMounted(carregarLivros);
 </script>

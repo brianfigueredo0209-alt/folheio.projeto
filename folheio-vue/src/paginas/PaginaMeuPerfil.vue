@@ -1,122 +1,64 @@
 <template>
-  <!-- ---------------------------------------------------------
-  Nome do bloco: Pagina de perfil do leitor e sua estante pessoal
-  --------------------------------------------------------- -->
   <CabecalhoPrincipal />
-
   <main class="recipiente-centralizado">
-
-    <!-- Painel do Leitor com Estilo Editorial -->
-    <section class="painel-perfil-editorial">
-      <div class="cartao-perfil__avatar-editorial">FL</div>
-
+    <p v-if="erroDaPagina" role="alert">{{ erroDaPagina }}</p>
+    <p v-if="carregando" role="status">Carregando sua estante...</p>
+    <section v-if="usuario" class="painel-perfil-editorial">
+      <div class="cartao-perfil__avatar-editorial">{{ usuario.nome.slice(0, 2).toUpperCase() }}</div>
       <div class="cartao-perfil__informacoes">
-        <div class="cartao-perfil__titulo-pre">Leitor &amp; Curador &bull; Maceio - AL</div>
-        <h1 class="cartao-perfil__nome">Felipe Lanches</h1>
-        <p class="cartao-perfil__localizacao">
-          Membro ativo da rede de circulacao sustentavel desde 2026
-        </p>
-
+        <div class="cartao-perfil__titulo-pre">Leitor • {{ usuario.cidade }}</div>
+        <h1 class="cartao-perfil__nome">{{ usuario.nome }}</h1>
+        <p class="cartao-perfil__localizacao">{{ usuario.email }}</p>
         <div class="cartao-perfil__estatisticas">
-          <div class="item-estatistica">
-            <span class="item-estatistica__numero">{{ totalDeObrasEmCirculacao }}</span>
-            <span class="item-estatistica__rotulo">Obras em Circulacao</span>
-          </div>
-          <div class="item-estatistica">
-            <span class="item-estatistica__numero">03</span>
-            <span class="item-estatistica__rotulo">Trocas Concluidas</span>
-          </div>
-          <div class="item-estatistica">
-            <span class="item-estatistica__numero">100%</span>
-            <span class="item-estatistica__rotulo">Avaliacao Positiva</span>
-          </div>
+          <div class="item-estatistica"><span class="item-estatistica__numero">{{ obrasDaEstante.length }}</span><span class="item-estatistica__rotulo">Obras em circulacao</span></div>
         </div>
       </div>
-
-      <div>
-        <button type="button" class="botao botao--secundario">
-          Editar estante
-        </button>
-      </div>
+      <RouterLink to="/publicar" class="botao botao--primario">Publicar livro</RouterLink>
     </section>
-
-    <!-- Obras do Leitor com Grade Editorial -->
     <section>
-      <h2 class="secao-meus-livros__titulo">Titulos Cadastrados</h2>
-
+      <h2 class="secao-meus-livros__titulo">Titulos cadastrados</h2>
       <div class="grade-editorial-livros">
-        <article
-          v-for="livro in obrasDaEstante"
-          :key="livro.identificador"
-          class="cartao-livro-editorial"
-        >
-          <span class="cartao-livro-editorial__numero">N&#186; {{ livro.numero }}</span>
-
-          <img
-            :src="livro.urlCapa"
-            :alt="'Capa de ' + livro.titulo"
-            class="cartao-livro-editorial__capa-img"
-          />
-
+        <article v-for="livro in obrasDaEstante" :key="livro.identificador" class="cartao-livro-editorial">
+          <span class="cartao-livro-editorial__numero">Nº {{ livro.numero }}</span>
+          <img :src="livro.urlCapa" :alt="'Capa de ' + livro.titulo" class="cartao-livro-editorial__capa-img" @error="tratarErroAoCarregarCapa" />
           <div class="cartao-livro-editorial__detalhes">
             <h3 class="cartao-livro-editorial__titulo">{{ livro.titulo }}</h3>
             <p class="cartao-livro-editorial__autor">{{ livro.autor }}</p>
-            <div class="cartao-livro-editorial__metadados">
-              <span :class="'etiqueta ' + livro.classeEtiqueta">{{ livro.etiqueta }}</span>
-              <span class="cartao-livro-editorial__localizacao">{{ livro.edicao }}</span>
-            </div>
+            <span class="etiqueta etiqueta--troca">{{ livro.etiqueta }}</span>
+          </div>
+          <div class="cartao-livro-editorial__rodape">
+            <RouterLink :to="{ path: '/publicar', query: { livro: livro.identificador } }" class="botao botao--secundario">Editar anuncio</RouterLink><button class="botao botao--secundario" :disabled="removendo" @click="removerLivro(livro)">Remover anuncio</button>
           </div>
         </article>
       </div>
+      <p v-if="!carregando && !erroDaPagina && !obrasDaEstante.length">Sua estante ainda esta vazia. Publique um exemplar para comecar.</p>
     </section>
-
   </main>
 </template>
-
 <script setup>
 // ---------------------------------------------------------
-// Nome do bloco: Logica da pagina de perfil do leitor
-// Gerencia as obras da estante pessoal e calcula estatisticas
+// Nome do bloco: Perfil e estante autenticados com dados do PostgreSQL
 // ---------------------------------------------------------
-import { ref, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import CabecalhoPrincipal from '../componentes/CabecalhoPrincipal.vue';
-
-// Obras cadastradas na estante do leitor
-const obrasDaEstante = ref([
-  {
-    identificador: 1,
-    numero: '01',
-    titulo: 'Ensaio Sobre a Cegueira',
-    autor: 'Jose Saramago',
-    urlCapa: 'https://covers.openlibrary.org/b/id/14618693-L.jpg',
-    etiqueta: 'Em negociacao',
-    classeEtiqueta: 'etiqueta--status',
-    edicao: 'Edicao Especial',
-  },
-  {
-    identificador: 2,
-    numero: '02',
-    titulo: 'Duna',
-    autor: 'Frank Herbert',
-    urlCapa: 'https://covers.openlibrary.org/b/id/15228531-L.jpg',
-    etiqueta: 'Disponivel',
-    classeEtiqueta: 'etiqueta--troca',
-    edicao: 'Capa Dura',
-  },
-  {
-    identificador: 3,
-    numero: '03',
-    titulo: 'O Hobbit',
-    autor: 'J.R.R. Tolkien',
-    urlCapa: 'https://covers.openlibrary.org/b/id/14849956-L.jpg',
-    etiqueta: 'Disponivel',
-    classeEtiqueta: 'etiqueta--troca',
-    edicao: 'Ilustrado',
-  },
-]);
-
-// Total de obras em circulacao calculado dinamicamente
-const totalDeObrasEmCirculacao = computed(() => {
-  return String(obrasDaEstante.value.length).padStart(2, '0');
-});
+import { requisitar, prepararLivro, tratarErroAoCarregarCapa } from '../servicos/api.js';
+const usuario = ref(null);
+const obrasDaEstante = ref([]);
+const carregando = ref(false);
+const removendo = ref(false);
+const erroDaPagina = ref('');
+async function carregarPerfil() {
+  carregando.value = true; erroDaPagina.value = '';
+  try { const dados = await requisitar('/api/v1/perfil'); usuario.value = dados.usuario; obrasDaEstante.value = dados.livros.map(prepararLivro); }
+  catch (erro) { erroDaPagina.value = erro.message; }
+  finally { carregando.value = false; }
+}
+async function removerLivro(livro) {
+  if (!window.confirm('Remover este anuncio e as conversas vinculadas a ele?')) return;
+  removendo.value = true; erroDaPagina.value = '';
+  try { await requisitar('/api/v1/livros/' + livro.identificador, { metodo: 'DELETE' }); await carregarPerfil(); }
+  catch (erro) { erroDaPagina.value = erro.message; }
+  finally { removendo.value = false; }
+}
+onMounted(carregarPerfil);
 </script>

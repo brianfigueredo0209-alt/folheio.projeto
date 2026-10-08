@@ -26,11 +26,11 @@ em um mesmo projeto, cada um com uma responsabilidade distinta.
 |---|---|---|---|
 | Prototipo Web | HTML + CSS + JS | `paginas/` | Interface estatica original |
 | SPA Completa | Vue.js 3 + Vite | `folheio-vue/` | Todas as paginas como Single Page App |
-| Widget Isolado | React 18 + Vite | `folheio-react-widget/` | Sistema de avaliacao como micro-frontend |
-| Backend Core | Go (planejado) | — | API REST, autenticacao, chat em tempo real |
-| Backend Dados | Python (planejado) | — | Recomendacoes de livros, IA |
-| Banco Relacional | PostgreSQL (planejado) | — | Usuarios, livros, transacoes |
-| Banco Cache | Redis (planejado) | — | Sessoes, dados temporarios |
+| Widget Isolado | React 19 + Vite | `folheio-react-widget/` | Sistema de avaliacao como micro-frontend |
+| Backend Core | Go | `backend/api-core/` | API REST, autenticacao e chat por consulta periodica |
+| Backend Dados | Python | `backend/api-data/` | Servico inicial com recomendacoes fixas |
+| Banco Relacional | PostgreSQL | `docker-compose.yml` | Usuarios, sessoes, livros, conversas e mensagens |
+| Banco Cache | Redis | `docker-compose.yml` | Configurado; ainda sem uso no fluxo integrado |
 
 ---
 
@@ -113,3 +113,19 @@ FOLHEIO-WEB/
 ## Licenca
 
 Distribuido sob a licenca MIT. Consulte o arquivo `LICENSE` para mais informacoes.
+## Integracao Web e Android com API compartilhada
+
+A API Go agora persiste usuarios, sessoes, livros e mensagens no PostgreSQL.
+A SPA Vue consome essa API e o aplicativo Android Kotlin segue o mesmo contrato.
+
+Consulte [CONTRATO_API.md](CONTRATO_API.md) e
+[backend/contrato.openapi.json](backend/contrato.openapi.json) para rotas, limites e execucao.
+A versao HTML original e o widget React continuam como demonstracoes locais.
+
+Execute o backend com docker compose up -d --build api-core e a SPA com
+npm run dev --prefix folheio-vue. MongoDB, Redis e Python nao sao necessarios
+para o fluxo inicial de autenticacao, publicacao e conversas.
+
+## Aplicativo Android versionado
+
+Os fontes Kotlin e o Gradle Wrapper estao em folheio-android/. Abra essa pasta no Android Studio. Consulte folheio-android/README.md para executar. SDK, configuracoes locais e APKs nao sao versionados. O build foi validado; a execucao em dispositivo e a revisao visual do Android ainda estao pendentes.

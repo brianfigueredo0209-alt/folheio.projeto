@@ -27,3 +27,5 @@ GEMINI.md
 # Cache do editor
 .vscode/
 .idea/
+# Arquivos temporarios de verificacao
+tmp/

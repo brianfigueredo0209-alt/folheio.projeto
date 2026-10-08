@@ -1,201 +1,108 @@
 <template>
-  <!-- ---------------------------------------------------------
-  Nome do bloco: Pagina de mensagens e dialogos de troca entre leitores
-  --------------------------------------------------------- -->
   <CabecalhoPrincipal />
-
   <main class="recipiente-centralizado">
-    <section class="cabecalho-secao">
-      <h1 class="cabecalho-secao__titulo">Dialogos de Circulacao</h1>
-      <p class="cabecalho-secao__subtitulo"></p>
-    </section>
-
+    <section class="cabecalho-secao"><h1 class="cabecalho-secao__titulo">Dialogos de circulacao</h1><p>Conversas vinculadas aos livros. Atualizacao a cada cinco segundos.</p></section>
+    <p v-if="erroDaPagina" role="alert">{{ erroDaPagina }}</p>
+    <p v-if="carregando" role="status">Carregando conversas...</p>
     <div class="layout-mensagens-editorial">
-
-      <!-- Lista de leitores e trocas ativas com filtro reativo -->
       <aside class="painel-conversas">
         <div class="painel-conversas__cabecalho">
           <h2 class="painel-conversas__titulo">Leitores</h2>
-          <input
-            type="search"
-            v-model="termoDeFiltroDeConversas"
-            class="painel-conversas__busca"
-            placeholder="Filtrar por obra ou leitor..."
-          />
+          <input v-model="termoDeFiltro" type="search" class="painel-conversas__busca" placeholder="Filtrar por obra ou leitor..." aria-label="Filtrar conversas" />
         </div>
-
         <div class="painel-conversas__lista">
-          <div
-            v-for="conversa in conversasFiltradas"
-            :key="conversa.identificador"
-            :class="['item-conversa', conversa.estaAtiva ? 'item-conversa--ativo' : '']"
-            @click="selecionarConversa(conversa)"
-          >
-            <div class="item-conversa__avatar">{{ conversa.inicialDoNome }}</div>
-            <div class="item-conversa__detalhes">
-              <div class="item-conversa__topo">
-                <span class="item-conversa__nome">{{ conversa.nomeEObra }}</span>
-                <span class="item-conversa__horario">{{ conversa.horario }}</span>
-              </div>
-              <p class="item-conversa__mensagem">{{ conversa.ultimaMensagem }}</p>
-            </div>
-          </div>
+          <button v-for="conversa in conversasFiltradas" :key="conversa.identificador" :class="['item-conversa', { 'item-conversa--ativo': conversa.identificador === conversaAtiva?.identificador }]" @click="selecionarConversa(conversa)">
+            <div class="item-conversa__avatar">{{ conversa.interlocutor.slice(0, 1) }}</div>
+            <div class="item-conversa__detalhes"><span class="item-conversa__nome">{{ conversa.interlocutor }}</span><p class="item-conversa__mensagem">{{ conversa.titulo }}</p></div>
+          </button>
+          <p v-if="!carregando && !listaDeConversas.length">Nenhuma conversa. Selecione um livro no catalogo para negociar.</p>
         </div>
       </aside>
-
-      <!-- Painel ativo do dialogo de troca -->
-      <section class="janela-chat">
-        <header class="janela-chat__cabecalho">
-          <div class="janela-chat__avatar-destaque">{{ conversaAtiva.inicialDoNome }}</div>
-          <div class="janela-chat__info-usuario">
-            <span class="janela-chat__nome">{{ conversaAtiva.nomeEObra }}</span>
-            <span class="janela-chat__status">Em linha para negociacao em Maceio</span>
-          </div>
-        </header>
-
-        <!-- Historico de mensagens renderizado reativamente -->
-        <div class="janela-chat__historico" ref="elementoHistorico">
-          <div
-            v-for="(mensagem, indice) in historicoDesMensagens"
-            :key="indice"
-            :class="['mensagem-container', 'mensagem-container--' + mensagem.direcao]"
-          >
-            <div :class="['balao-mensagem', 'balao-mensagem--' + mensagem.direcao]">
-              {{ mensagem.texto }}
-            </div>
-            <span class="mensagem-horario">{{ mensagem.horario }}</span>
+      <section v-if="conversaAtiva" class="janela-chat">
+        <header class="janela-chat__cabecalho"><div class="janela-chat__info-usuario"><span class="janela-chat__nome">{{ conversaAtiva.interlocutor }}</span><span class="janela-chat__status">{{ conversaAtiva.titulo }}</span></div></header>
+        <div ref="elementoHistorico" class="janela-chat__historico" aria-live="polite">
+          <p v-if="!historico.length">Comece a conversa sobre este livro.</p>
+          <div v-for="mensagem in historico" :key="mensagem.identificador" :class="['mensagem-container', 'mensagem-container--' + direcao(mensagem)]">
+            <div :class="['balao-mensagem', 'balao-mensagem--' + direcao(mensagem)]">{{ mensagem.texto }}</div>
+            <span class="mensagem-horario">{{ new Date(mensagem.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) }}</span>
           </div>
         </div>
-
-        <!-- Formulario de envio de nova mensagem -->
         <form class="janela-chat__entrada" @submit.prevent="enviarMensagem">
-          <input
-            type="text"
-            v-model="textoDaNovaMensagem"
-            class="campo-entrada janela-chat__campo"
-            placeholder="Escreva sua proposta ou mensagem para o leitor..."
-            required
-          />
-          <button type="submit" class="botao botao--primario">Enviar</button>
+          <input v-model="texto" class="campo-entrada janela-chat__campo" aria-label="Mensagem" placeholder="Escreva sua proposta..." maxlength="2000" required />
+          <button class="botao botao--primario" :disabled="enviando">Enviar</button>
         </form>
       </section>
-
     </div>
   </main>
 </template>
-
 <script setup>
 // ---------------------------------------------------------
-// Nome do bloco: Logica da pagina de mensagens
-// Gerencia filtro de conversas, selecao de conversa ativa
-// e envio de novas mensagens de forma reativa
+// Nome do bloco: Mensagens persistentes com atualizacao periodica e isolamento por conversa
 // ---------------------------------------------------------
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { useRoute } from 'vue-router';
 import CabecalhoPrincipal from '../componentes/CabecalhoPrincipal.vue';
-
-// Referencia ao elemento do historico para controlar o scroll automatico
+import { requisitar, sessao } from '../servicos/api.js';
+const rota = useRoute();
+const listaDeConversas = ref([]);
+const conversaAtiva = ref(null);
+const historico = ref([]);
+const termoDeFiltro = ref('');
+const texto = ref('');
 const elementoHistorico = ref(null);
-
-// Termo de filtro para a lista de conversas
-const termoDeFiltroDeConversas = ref('');
-
-// Texto digitado no campo de nova mensagem
-const textoDaNovaMensagem = ref('');
-
-// Lista de conversas da barra lateral
-const listaDeConversas = ref([
-  {
-    identificador: 1,
-    inicialDoNome: 'A',
-    nomeEObra: 'Ana \u2022 Livro 1',
-    horario: '14:32',
-    ultimaMensagem: 'Podemos combinar a troca?',
-    estaAtiva: true,
-  },
-  {
-    identificador: 2,
-    inicialDoNome: 'J',
-    nomeEObra: 'Joao \u2022 Livro 2',
-    horario: 'Ontem',
-    ultimaMensagem: 'O livro ja esta embalado para envio.',
-    estaAtiva: false,
-  },
-  {
-    identificador: 3,
-    inicialDoNome: 'M',
-    nomeEObra: 'Maria \u2022 Livro 3',
-    horario: 'Seg',
-    ultimaMensagem: 'Tem interesse em outros titulos?',
-    estaAtiva: false,
-  },
-]);
-
-// Conversa atualmente selecionada na lista
-const conversaAtiva = ref(listaDeConversas.value[0]);
-
-// Historico de mensagens da conversa ativa
-const historicoDesMensagens = ref([
-  {
-    direcao: 'recebida',
-    texto: 'Ola! Encontrei seu anuncio de Livro 1. Gostaria de saber se a edicao ainda esta disponivel para troca pelo meu exemplar de classicos modernos?',
-    horario: '14:28',
-  },
-  {
-    direcao: 'enviada',
-    texto: 'Ola, Ana! Sim, a edicao esta em perfeito estado e pronta para circular. Vi sua estante e tenho interesse sim. Podemos combinar o encontro?',
-    horario: '14:32',
-  },
-]);
-
-// Filtra conversas da barra lateral com base no termo digitado
-const conversasFiltradas = computed(() => {
-  const termoBuscaNormalizado = termoDeFiltroDeConversas.value.toLowerCase().trim();
-
-  if (!termoBuscaNormalizado) {
-    return listaDeConversas.value;
-  }
-
-  return listaDeConversas.value.filter((conversa) => {
-    return (
-      conversa.nomeEObra.toLowerCase().includes(termoBuscaNormalizado) ||
-      conversa.ultimaMensagem.toLowerCase().includes(termoBuscaNormalizado)
-    );
-  });
-});
-
-// Define a conversa selecionada como ativa
-function selecionarConversa(conversaSelecionada) {
-  listaDeConversas.value.forEach((conversa) => {
-    conversa.estaAtiva = conversa.identificador === conversaSelecionada.identificador;
-  });
-  conversaAtiva.value = conversaSelecionada;
+const erroDaPagina = ref('');
+const carregando = ref(true);
+const enviando = ref(false);
+let temporizador;
+let atualizando = false;
+let desmontada = false;
+const conversasFiltradas = computed(() => listaDeConversas.value.filter(conversa =>
+  (conversa.interlocutor + ' ' + conversa.titulo).toLowerCase().includes(termoDeFiltro.value.toLowerCase())));
+function direcao(mensagem) { return mensagem.remetente_id === sessao.value?.usuario.identificador ? 'enviada' : 'recebida'; }
+async function selecionarConversa(conversa) {
+  conversaAtiva.value = conversa; historico.value = []; texto.value = '';
+  try { await carregarMensagens(); erroDaPagina.value = ''; } catch (erro) { erroDaPagina.value = erro.message; }
 }
-
-// Adiciona a nova mensagem ao historico e rola para o final
+async function carregarMensagens() {
+  const identificador = conversaAtiva.value?.identificador;
+  if (!identificador) return;
+  const dados = await requisitar('/api/v1/conversas/' + identificador + '/mensagens');
+  if (desmontada || conversaAtiva.value?.identificador !== identificador) return;
+  const anterior = historico.value.at(-1)?.identificador;
+  historico.value = dados.mensagens;
+  if (anterior !== historico.value.at(-1)?.identificador) {
+    await nextTick();
+    if (elementoHistorico.value) elementoHistorico.value.scrollTop = elementoHistorico.value.scrollHeight;
+  }
+}
+async function atualizar() {
+  if (atualizando || desmontada) return;
+  atualizando = true;
+  try {
+    listaDeConversas.value = (await requisitar('/api/v1/conversas')).conversas;
+    if (conversaAtiva.value && !listaDeConversas.value.some(conversa => conversa.identificador === conversaAtiva.value.identificador)) {
+      conversaAtiva.value = null; historico.value = [];
+    }
+    if (!conversaAtiva.value && listaDeConversas.value.length) {
+      conversaAtiva.value = listaDeConversas.value.find(conversa => conversa.identificador === rota.query.conversa) || listaDeConversas.value[0];
+    }
+    if (conversaAtiva.value) conversaAtiva.value = listaDeConversas.value.find(conversa => conversa.identificador === conversaAtiva.value.identificador);
+    await carregarMensagens(); erroDaPagina.value = '';
+  } catch (erro) { erroDaPagina.value = erro.message; }
+  finally { carregando.value = false; atualizando = false; }
+}
 async function enviarMensagem() {
-  const textoValidado = textoDaNovaMensagem.value.trim();
-
-  if (!textoValidado) {
-    return;
-  }
-
-  const horarioAtual = new Date().toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-  historicoDesMensagens.value.push({
-    direcao: 'enviada',
-    texto: textoValidado,
-    horario: horarioAtual,
-  });
-
-  textoDaNovaMensagem.value = '';
-
-  // Aguarda o DOM atualizar antes de rolar para o final
-  await nextTick();
-  if (elementoHistorico.value) {
-    elementoHistorico.value.scrollTop = elementoHistorico.value.scrollHeight;
-  }
+  if (enviando.value || !texto.value.trim() || !conversaAtiva.value) return;
+  const identificador = conversaAtiva.value.identificador;
+  const mensagem = texto.value;
+  enviando.value = true;
+  try {
+    await requisitar('/api/v1/conversas/' + identificador + '/mensagens', { metodo: 'POST', dados: { texto: mensagem } });
+    if (conversaAtiva.value?.identificador === identificador) { texto.value = ''; await carregarMensagens(); }
+    erroDaPagina.value = '';
+  } catch (erro) { erroDaPagina.value = erro.message; }
+  finally { enviando.value = false; }
 }
+onMounted(() => { atualizar(); temporizador = setInterval(atualizar, 5000); });
+onUnmounted(() => { desmontada = true; clearInterval(temporizador); });
 </script>

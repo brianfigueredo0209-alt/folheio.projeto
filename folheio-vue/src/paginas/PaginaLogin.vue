@@ -28,13 +28,20 @@
     <!-- Painel de Autenticacao (Lado Direito) -->
     <main class="painel-login-formulario">
       <div class="caixa-formulario-login">
-        <h2 class="caixa-formulario-login__titulo">Entrar na sua estante</h2>
+        <h2 class="caixa-formulario-login__titulo">{{ criandoConta ? 'Cadastrar sua estante' : 'Entrar na sua estante' }}</h2>
         <p class="caixa-formulario-login__subtitulo">
           Insira suas credenciais para gerenciar suas trocas
         </p>
 
         <!-- O submit navega para a pagina de livros sem recarregar -->
         <form @submit.prevent="realizarAcesso">
+          <p v-if="erroDeAcesso" role="alert">{{ erroDeAcesso }}</p>
+          <div v-if="criandoConta" class="grupo-formulario">
+            <label for="campo-nome">Nome</label>
+            <input id="campo-nome" v-model="nome" class="campo-entrada" maxlength="120" required />
+            <label for="campo-cidade">Cidade e estado</label>
+            <input id="campo-cidade" v-model="cidade" class="campo-entrada" maxlength="120" placeholder="Maceio - AL" required />
+          </div>
           <div class="grupo-formulario">
             <label for="campo-email">Endereco de e-mail</label>
             <input
@@ -51,7 +58,7 @@
           <div class="grupo-formulario">
             <div class="grupo-formulario__cabecalho">
               <label for="campo-senha">Senha de acesso</label>
-              <a href="#" class="link-recuperar-senha">Esqueceu a senha?</a>
+
             </div>
             <div class="campo-com-acao">
               <input
@@ -60,7 +67,7 @@
                 v-model="senhaDoCampo"
                 class="campo-entrada"
                 placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
-                autocomplete="current-password"
+                :autocomplete="criandoConta ? 'new-password' : 'current-password'" :minlength="criandoConta ? 8 : undefined" maxlength="72"
                 required
               />
               <button
@@ -75,13 +82,13 @@
             </div>
           </div>
 
-          <button type="submit" class="botao botao--primario botao--total" style="margin-top: 24px;">
-            Acessar plataforma
+          <button type="submit" :disabled="enviando" class="botao botao--primario botao--total" style="margin-top: 24px;">
+            {{ enviando ? 'Aguarde...' : criandoConta ? 'Criar conta' : 'Acessar plataforma' }}
           </button>
 
           <div class="chamada-cadastro">
-            <span class="chamada-cadastro__texto">Ainda nao possui uma conta?</span>
-            <RouterLink to="/livros" class="chamada-cadastro__link">Cadastrar estante</RouterLink>
+
+            <button type="button" class="chamada-cadastro__link" :disabled="enviando" @click="criandoConta = !criandoConta; erroDeAcesso = ''">{{ criandoConta ? 'Ja tenho uma conta' : 'Cadastrar estante' }}</button>
           </div>
         </form>
       </div>
@@ -92,26 +99,31 @@
 
 <script setup>
 // ---------------------------------------------------------
-// Nome do bloco: Logica da pagina de login
-// Gerencia a visibilidade da senha e a navegacao apos o acesso
+// Nome do bloco: Cadastro e login reais pelo contrato compartilhado
 // ---------------------------------------------------------
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-
+import { requisitar, guardarSessao } from '../servicos/api.js';
 const roteador = useRouter();
-
-// Estado dos campos do formulario
-const enderecoEmail   = ref('');
-const senhaDoCampo    = ref('');
+const enderecoEmail = ref('');
+const senhaDoCampo = ref('');
 const senhaEstaVisivel = ref(false);
-
-// Alterna o tipo do campo de senha entre texto e senha
-function alternarVisibilidadeSenha() {
-  senhaEstaVisivel.value = !senhaEstaVisivel.value;
-}
-
-// Processa o envio do formulario e navega para a pagina de livros
-function realizarAcesso() {
-  roteador.push('/livros');
+const criandoConta = ref(false);
+const nome = ref('');
+const cidade = ref('');
+const enviando = ref(false);
+const erroDeAcesso = ref('');
+function alternarVisibilidadeSenha() { senhaEstaVisivel.value = !senhaEstaVisivel.value; }
+async function realizarAcesso() {
+  if (enviando.value) return;
+  enviando.value = true; erroDeAcesso.value = '';
+  try {
+    const dados = { email: enderecoEmail.value, senha: senhaDoCampo.value };
+    if (criandoConta.value) Object.assign(dados, { nome: nome.value, cidade: cidade.value });
+    guardarSessao(await requisitar('/api/v1/auth/' + (criandoConta.value ? 'cadastro' : 'login'), { metodo: 'POST', dados }));
+    senhaDoCampo.value = '';
+    await roteador.push('/livros');
+  } catch (erro) { erroDeAcesso.value = erro.message; }
+  finally { enviando.value = false; }
 }
 </script>

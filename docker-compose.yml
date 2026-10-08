@@ -1,9 +1,13 @@
-version: '3.8'
 
 services:
   postgres:
     image: postgres:15-alpine
     container_name: folheio_postgres
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U folheio_user -d folheio_db]
+      interval: 3s
+      timeout: 3s
+      retries: 20
     restart: always
     environment:
       POSTGRES_USER: folheio_user
@@ -51,10 +55,11 @@ services:
       - "8080:8080"
     environment:
       - PORT=8080
+      - DATABASE_URL=postgres://folheio_user:folheio_password@postgres:5432/folheio_db?sslmode=disable
+      - CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
     depends_on:
-      - postgres
-      - mongodb
-      - redis
+      postgres:
+        condition: service_healthy
     networks:
       - folheio-network
 

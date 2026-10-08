@@ -68,3 +68,11 @@ folheio.projeto/
 2. **Fração 2 (API Core):** Inicializar o projeto Go, estruturar as camadas e conectar ao PostgreSQL.
 3. **Fração 3 (Autenticação e Catálogo):** Implementar rotas de registro, login (JWT) e CRUD de livros.
 4. **Fração 4 (Serviço de IA):** Configurar o ambiente Python com FastAPI para o motor de recomendações.
+
+## Implementacao da integracao inicial
+
+O contrato efetivamente implementado esta em CONTRATO_API.md e backend/contrato.openapi.json.
+Nesta entrega, a autenticacao usa Bearer opaco revogavel com validade de 24 horas;
+a proposta de JWT acima descreve evolucao futura. O chat usa consulta HTTP a cada
+cinco segundos. WebSocket ainda e planejado. Usuarios, sessoes, livros, conversas
+e mensagens sao persistidos no PostgreSQL; MongoDB/Redis nao participam desse fluxo.

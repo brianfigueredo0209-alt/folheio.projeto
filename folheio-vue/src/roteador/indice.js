@@ -4,6 +4,7 @@
 // ---------------------------------------------------------
 
 import { createRouter, createWebHashHistory } from 'vue-router';
+import { sessao, guardarSessao } from '../servicos/api.js';
 
 import PaginaLogin            from '../paginas/PaginaLogin.vue';
 import PaginaEncontreLivros   from '../paginas/PaginaEncontreLivros.vue';
@@ -35,4 +36,9 @@ roteadorDaAplicacao.afterEach((rotaDestino) => {
   document.title = rotaDestino.meta.titulo || 'FOLHEIO';
 });
 
+roteadorDaAplicacao.beforeEach((destino) => {
+  if (sessao.value && Date.parse(sessao.value.expira_em) <= Date.now()) guardarSessao(null);
+  if (['/perfil', '/publicar', '/mensagens'].includes(destino.path) && !sessao.value?.token) return '/';
+});
+window.addEventListener('folheio-sessao-expirada', () => roteadorDaAplicacao.push('/'));
 export default roteadorDaAplicacao;

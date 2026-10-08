@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 420" width="300" height="420" role="img" aria-label="Capa editorial padrão">
+  <defs>
+    <linearGradient id="gradienteFundo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#24332C" />
+      <stop offset="100%" stop-color="#151E1A" />
+    </linearGradient>
+    <linearGradient id="gradienteBorda" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#8C7322" stop-opacity="0.2" />
+    </linearGradient>
+  </defs>
+
+  <!-- Fundo texturizado com acabamento editorial -->
+  <rect width="300" height="420" rx="6" fill="url(#gradienteFundo)" />
+
+  <!-- Moldura geometrica de encadernacao -->
+  <rect x="18" y="18" width="264" height="384" rx="4" fill="none" stroke="url(#gradienteBorda)" stroke-width="1.5" />
+  <rect x="24" y="24" width="252" height="372" rx="2" fill="none" stroke="#D4AF37" stroke-width="0.75" stroke-opacity="0.3" stroke-dasharray="4, 4" />
+
+  <!-- Detalhes de cantos ornamentais -->
+  <line x1="18" y1="36" x2="36" y2="18" stroke="#D4AF37" stroke-width="1" stroke-opacity="0.5" />
+  <line x1="282" y1="36" x2="264" y2="18" stroke="#D4AF37" stroke-width="1" stroke-opacity="0.5" />
+  <line x1="18" y1="384" x2="36" y2="402" stroke="#D4AF37" stroke-width="1" stroke-opacity="0.5" />
+  <line x1="282" y1="384" x2="264" y2="402" stroke="#D4AF37" stroke-width="1" stroke-opacity="0.5" />
+
+  <!-- Emblema central: Livro aberto estilizado -->
+  <g transform="translate(150, 160)" stroke="#D4AF37" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-36 -12 C-20 -20, -6 -18, 0 -8 C6 -18, 20 -20, 36 -12 V24 C20 16, 6 18, 0 28 C-6 18, -20 16, -36 24 Z" />
+    <path d="M0 -8 V28" />
+    <path d="M-30 -2 C-18 -8, -6 -6, 0 2" stroke-width="1" stroke-opacity="0.6" />
+    <path d="M30 -2 C18 -8, 6 -6, 0 2" stroke-width="1" stroke-opacity="0.6" />
+  </g>
+
+  <!-- Tipografia editorial -->
+  <text x="150" y="240" font-family="'Newsreader', 'Georgia', serif" font-size="20" font-weight="600" fill="#F4EFE6" letter-spacing="3" text-anchor="middle">
+    FOLHEIO
+  </text>
+
+  <text x="150" y="265" font-family="'Inter', -apple-system, sans-serif" font-size="10" font-weight="500" fill="#C5BCAB" letter-spacing="2" text-anchor="middle">
+    EDICAO DE COLECIONADOR
+  </text>
+
+  <line x1="110" y1="285" x2="190" y2="285" stroke="#D4AF37" stroke-width="0.8" stroke-opacity="0.4" />
+
+  <text x="150" y="310" font-family="'Newsreader', 'Georgia', serif" font-style="italic" font-size="12" fill="#9E9689" text-anchor="middle">
+    Exemplar em Circulacao
+  </text>
+</svg>

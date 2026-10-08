@@ -41,7 +41,7 @@
       </RouterLink>
     </nav>
 
-    <div class="cabecalho-principal__acoes">
+    <div class="cabecalho-principal__acoes"><button v-if="sessao" class="botao botao--secundario" :disabled="saindo" @click="sair">Sair</button><RouterLink v-else to="/" class="botao botao--secundario">Entrar</RouterLink><span v-if="erroDeSaida" role="alert">{{ erroDeSaida }}</span>
       <RouterLink to="/publicar" class="botao botao--primario">
         + Anunciar livro
       </RouterLink>
@@ -51,8 +51,18 @@
 
 <script setup>
 // ---------------------------------------------------------
-// Nome do bloco: Cabecalho sem logica adicional
-// O estado ativo dos links e gerenciado automaticamente
-// pelo RouterLink com o atributo active-class
+// Nome do bloco: Encerramento da sessao no cliente e no servidor
 // ---------------------------------------------------------
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { requisitar, sessao, guardarSessao } from '../servicos/api.js';
+const roteador = useRouter();
+const saindo = ref(false);
+const erroDeSaida = ref('');
+async function sair() {
+  saindo.value = true; erroDeSaida.value = '';
+  try { await requisitar('/api/v1/auth/sair', { metodo: 'POST' }); guardarSessao(null); await roteador.push('/'); }
+  catch (erro) { erroDeSaida.value = erro.message; }
+  finally { saindo.value = false; }
+}
 </script>

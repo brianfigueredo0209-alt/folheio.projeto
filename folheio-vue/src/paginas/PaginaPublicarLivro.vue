@@ -6,13 +6,13 @@
 
   <main class="recipiente-centralizado">
     <section class="cabecalho-secao">
-      <h1 class="cabecalho-secao__titulo">Disponibilizar exemplar para circulacao</h1>
+      <h1 class="cabecalho-secao__titulo">{{ rota.query.livro ? 'Editar anuncio' : 'Disponibilizar exemplar para circulacao' }}</h1>
       <p class="cabecalho-secao__subtitulo">
         Preencha os detalhes do livro para cataloga-lo na rede de trocas
       </p>
     </section>
 
-    <form class="formulario-publicacao-editorial" @submit.prevent="publicarAnuncio">
+    <p v-if="carregandoEdicao" role="status">Carregando anuncio...</p><p v-if="erroDaPagina" role="alert">{{ erroDaPagina }}</p><form class="formulario-publicacao-editorial" @submit.prevent="publicarAnuncio">
 
       <!-- Coluna Esquerda: A Obra -->
       <section class="painel-campos-editorial">
@@ -22,7 +22,7 @@
 
         <div class="grupo-formulario">
           <label for="campo-titulo">Titulo do livro</label>
-          <input
+          <input :disabled="carregandoEdicao || enviando"
             type="text"
             id="campo-titulo"
             v-model="dadosDoFormulario.tituloDaObra"
@@ -34,7 +34,7 @@
 
         <div class="grupo-formulario">
           <label for="campo-autor">Autor da obra</label>
-          <input
+          <input :disabled="carregandoEdicao || enviando"
             type="text"
             id="campo-autor"
             v-model="dadosDoFormulario.autorDaObra"
@@ -70,7 +70,7 @@
           />
 
           <!-- Input de arquivo oculto acionado por clique no painel -->
-          <input
+          <input :disabled="carregandoEdicao || enviando"
             type="file"
             ref="entradaDeArquivoDeCapa"
             class="painel-upload-editorial__entrada-oculta"
@@ -88,7 +88,7 @@
 
         <div class="grupo-formulario">
           <label for="campo-genero">Genero literario</label>
-          <select id="campo-genero" v-model="dadosDoFormulario.generoLiterario" class="campo-selecao" required>
+          <select :disabled="carregandoEdicao || enviando" id="campo-genero" v-model="dadosDoFormulario.generoLiterario" class="campo-selecao" required>
             <option value="" disabled>Selecione um genero</option>
             <option value="romance">Romance</option>
             <option value="poesia">Poesia &amp; Cronica</option>
@@ -102,7 +102,7 @@
 
         <div class="grupo-formulario">
           <label for="campo-estado">Estado de conservacao</label>
-          <select id="campo-estado" v-model="dadosDoFormulario.estadoDeConservacao" class="campo-selecao" required>
+          <select :disabled="carregandoEdicao || enviando" id="campo-estado" v-model="dadosDoFormulario.estadoDeConservacao" class="campo-selecao" required>
             <option value="" disabled>Avalie o estado das paginas e capa</option>
             <option value="novo">Impecavel (novo ou nunca folheado)</option>
             <option value="seminovo">Excelente (sem anotacoes ou desgastes)</option>
@@ -113,7 +113,7 @@
 
         <div class="grupo-formulario">
           <label for="campo-descricao">Notas do leitor sobre a edicao</label>
-          <textarea
+          <textarea :disabled="carregandoEdicao || enviando"
             id="campo-descricao"
             v-model="dadosDoFormulario.notasDoLeitor"
             class="campo-texto-longo"
@@ -123,20 +123,27 @@
         </div>
 
         <div class="grupo-formulario">
+          <label for="campo-modalidade">Modalidade da oferta</label>
+          <select :disabled="carregandoEdicao || enviando" id="campo-modalidade" v-model="dadosDoFormulario.modalidade" class="campo-selecao">
+            <option value="troca">Troca</option><option value="venda">Venda</option><option value="doacao">Doacao</option>
+          </select>
+          <template v-if="dadosDoFormulario.modalidade === 'venda'">
+            <label for="campo-preco">Preco em reais</label>
+            <input :disabled="carregandoEdicao || enviando" id="campo-preco" v-model="precoEmReais" type="number" min="0.01" max="1000000" step="0.01" class="campo-entrada" required />
+          </template>
           <label for="campo-desejo">O que voce gostaria em contrapartida?</label>
-          <input
+          <input :disabled="carregandoEdicao || enviando"
             type="text"
             id="campo-desejo"
-            v-model="dadosDoFormulario.desejoDeTroca"
+            v-model="dadosDoFormulario.desejoDeTroca" :required="dadosDoFormulario.modalidade === 'troca'"
             class="campo-entrada"
             placeholder="Ex.: Titulos de Gabriel Garcia Marquez ou romance contemporaneo"
-            required
           />
         </div>
 
         <div class="acoes-formulario">
           <RouterLink to="/livros" class="botao botao--secundario">Cancelar</RouterLink>
-          <button type="submit" class="botao botao--primario">Publicar anuncio</button>
+          <button type="submit" class="botao botao--primario" :disabled="enviando || lendoCapa || carregandoEdicao">{{ enviando ? 'Salvando...' : rota.query.livro ? 'Salvar alteracoes' : 'Publicar anuncio' }}</button>
         </div>
       </section>
 
@@ -146,76 +153,65 @@
 
 <script setup>
 // ---------------------------------------------------------
-// Nome do bloco: Logica da pagina de publicacao de livro
-// Gerencia o formulario, o preview da capa e o mock de publicacao
-// via localStorage para simulacao do sistema sem backend
+// Nome do bloco: Publicacao persistente com capa e modalidade da oferta
 // ---------------------------------------------------------
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import CabecalhoPrincipal from '../componentes/CabecalhoPrincipal.vue';
-
+import { requisitar } from '../servicos/api.js';
 const roteador = useRouter();
-
-// Referencia ao elemento de input de arquivo para acionamento programatico
+const rota = useRoute();
+const carregandoEdicao = ref(false);
 const entradaDeArquivoDeCapa = ref(null);
-
-// URL temporaria gerada para o preview da imagem selecionada
 const urlPreviewDaCapa = ref('');
-
-// Dados reativos do formulario de publicacao
-const dadosDoFormulario = ref({
-  tituloDaObra: '',
-  autorDaObra: '',
-  generoLiterario: '',
-  estadoDeConservacao: '',
-  notasDoLeitor: '',
-  desejoDeTroca: '',
+const enviando = ref(false);
+const lendoCapa = ref(false);
+const erroDaPagina = ref('');
+const precoEmReais = ref('');
+const dadosDoFormulario = ref({ tituloDaObra: '', autorDaObra: '', generoLiterario: '', estadoDeConservacao: '', notasDoLeitor: '', desejoDeTroca: '', modalidade: 'troca' });
+const estilosDoPainelDeCapa = computed(() => urlPreviewDaCapa.value
+  ? { padding: '12px', border: 'none', backgroundColor: 'transparent', height: '340px' }
+  : { height: '340px', marginTop: '12px' });
+function acionarSeletorDeArquivo() { entradaDeArquivoDeCapa.value?.click(); }
+function processarSelecaoDeCapa(evento) {
+  const arquivo = evento.target.files[0];
+  erroDaPagina.value = '';
+  if (!arquivo) return;
+  if (!['image/png', 'image/jpeg'].includes(arquivo.type) || arquivo.size > 5 * 1024 * 1024) {
+    erroDaPagina.value = 'Selecione uma capa JPEG ou PNG de ate 5 MB.'; evento.target.value = ''; return;
+  }
+  lendoCapa.value = true;
+  const leitor = new FileReader();
+  leitor.onload = () => { urlPreviewDaCapa.value = leitor.result; lendoCapa.value = false; };
+  leitor.onerror = () => { erroDaPagina.value = 'Nao foi possivel ler a capa.'; lendoCapa.value = false; };
+  leitor.readAsDataURL(arquivo);
+}
+async function publicarAnuncio() {
+  if (enviando.value || lendoCapa.value) return;
+  enviando.value = true; erroDaPagina.value = '';
+  try {
+    const formulario = dadosDoFormulario.value;
+    await requisitar('/api/v1/livros' + (rota.query.livro ? '/' + encodeURIComponent(rota.query.livro) : ''), { metodo: rota.query.livro ? 'PUT' : 'POST', dados: {
+      titulo: formulario.tituloDaObra, autor: formulario.autorDaObra,
+      genero: formulario.generoLiterario, estado: formulario.estadoDeConservacao,
+      descricao: formulario.notasDoLeitor, desejo: formulario.desejoDeTroca,
+      modalidade: formulario.modalidade, preco_centavos: formulario.modalidade === 'venda' ? Math.round(Number(precoEmReais.value) * 100) : 0,
+      capa: urlPreviewDaCapa.value,
+    } });
+    await roteador.push('/perfil');
+  } catch (erro) { erroDaPagina.value = erro.message; }
+  finally { enviando.value = false; }
+}
+onMounted(async () => {
+  if (!rota.query.livro) return;
+  carregandoEdicao.value = true;
+  try {
+    const livro = (await requisitar('/api/v1/perfil')).livros.find(obra => obra.identificador === rota.query.livro);
+    if (!livro) throw new Error('Anuncio nao encontrado na sua estante.');
+    dadosDoFormulario.value = { tituloDaObra: livro.titulo, autorDaObra: livro.autor, generoLiterario: livro.genero, estadoDeConservacao: livro.estado, notasDoLeitor: livro.descricao, desejoDeTroca: livro.desejo, modalidade: livro.modalidade };
+    precoEmReais.value = livro.preco_centavos / 100;
+    urlPreviewDaCapa.value = livro.capa;
+  } catch (erro) { erroDaPagina.value = erro.message; }
+  finally { carregandoEdicao.value = false; }
 });
-
-// Estilos dinamicos do painel de capa: remove a borda quando uma imagem e exibida
-const estilosDoPainelDeCapa = computed(() => {
-  if (urlPreviewDaCapa.value) {
-    return { padding: '12px', border: 'none', backgroundColor: 'transparent', height: '340px' };
-  }
-  return { height: '340px', marginTop: '12px' };
-});
-
-// Abre o seletor de arquivo ao clicar no painel de capa
-function acionarSeletorDeArquivo() {
-  if (entradaDeArquivoDeCapa.value) {
-    entradaDeArquivoDeCapa.value.click();
-  }
-}
-
-// Gera o preview local da imagem selecionada pelo usuario
-function processarSelecaoDeCapa(eventoDeSelecao) {
-  const arquivoSelecionado = eventoDeSelecao.target.files[0];
-
-  if (arquivoSelecionado) {
-    urlPreviewDaCapa.value = URL.createObjectURL(arquivoSelecionado);
-  }
-}
-
-// Salva o anuncio no localStorage e redireciona para o perfil
-function publicarAnuncio() {
-  const registroDoLivro = {
-    identificador: Date.now().toString(),
-    titulo: dadosDoFormulario.value.tituloDaObra,
-    autor: dadosDoFormulario.value.autorDaObra,
-    genero: dadosDoFormulario.value.generoLiterario,
-    estado: dadosDoFormulario.value.estadoDeConservacao,
-    notas: dadosDoFormulario.value.notasDoLeitor,
-    desejo: dadosDoFormulario.value.desejoDeTroca,
-    urlCapa: urlPreviewDaCapa.value || '',
-    dataDePublicacao: new Date().toISOString(),
-  };
-
-  // Recupera publicacoes existentes e adiciona o novo registro
-  const livrosPublicados = JSON.parse(localStorage.getItem('folheio_livros') || '[]');
-  livrosPublicados.push(registroDoLivro);
-  localStorage.setItem('folheio_livros', JSON.stringify(livrosPublicados));
-
-  // Navega para o perfil apos a publicacao
-  roteador.push('/perfil');
-}
 </script>

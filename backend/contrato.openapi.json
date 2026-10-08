@@ -1,0 +1,1097 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Contrato compartilhado FOLHEIO",
+    "version": "1.0.0",
+    "description": "Web Vue e Android Kotlin. Bearer opaco revogavel; consulta periodica de chat. Veja CONTRATO_API.md para limites em bytes e regras condicionais."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "paths": {
+    "/status": {
+      "get": {
+        "summary": "Disponibilidade da API e PostgreSQL",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Confirmacao"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/cadastro": {
+      "post": {
+        "summary": "Cadastrar e criar sessao",
+        "security": [],
+        "responses": {
+          "201": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sessao"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 72
+                  },
+                  "cidade": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "nome",
+                  "email",
+                  "senha",
+                  "cidade"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Entrar",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sessao"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "senha": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "senha"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/sair": {
+      "post": {
+        "summary": "Revogar sessao",
+        "security": [
+          {
+            "sessao": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Confirmacao"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/perfil": {
+      "get": {
+        "summary": "Perfil e estante autenticados",
+        "security": [
+          {
+            "sessao": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Perfil"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/livros": {
+      "get": {
+        "summary": "Buscar ate 100 anuncios",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Catalogo"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "busca",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "modalidade",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Publicar anuncio",
+        "security": [
+          {
+            "sessao": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Identificador"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaLivro"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/livros/{livro}": {
+      "put": {
+        "summary": "Editar oferta do proprietario",
+        "security": [
+          {
+            "sessao": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Identificador"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaLivro"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "livro",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Remover anuncio e conversas vinculadas",
+        "security": [
+          {
+            "sessao": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Confirmacao"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "livro",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/conversas": {
+      "get": {
+        "summary": "Listar conversas do participante",
+        "security": [
+          {
+            "sessao": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversas"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar ou recuperar conversa por livro",
+        "security": [
+          {
+            "sessao": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Identificador"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "livro_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "livro_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conversas/{conversa}/mensagens": {
+      "get": {
+        "summary": "Ultimas 200 mensagens do participante",
+        "security": [
+          {
+            "sessao": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mensagens"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "conversa",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Enviar mensagem",
+        "security": [
+          {
+            "sessao": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Confirmacao"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Erro: 400 validacao, 401 sessao, 403 origem, 404 recurso, 409 email duplicado, 500 persistencia ou 503 banco indisponivel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "texto": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "texto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "conversa",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessao": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "opaque"
+      }
+    },
+    "schemas": {
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "identificador": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "cidade": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "identificador",
+          "nome",
+          "email",
+          "cidade"
+        ],
+        "additionalProperties": false
+      },
+      "EntradaLivro": {
+        "type": "object",
+        "properties": {
+          "titulo": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1
+          },
+          "autor": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1
+          },
+          "genero": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "novo",
+              "seminovo",
+              "bom",
+              "marcas"
+            ]
+          },
+          "descricao": {
+            "type": "string",
+            "maxLength": 3000,
+            "minLength": 1
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "troca",
+              "venda",
+              "doacao"
+            ]
+          },
+          "desejo": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "preco_centavos": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "capa": {
+            "type": "string",
+            "description": "Data URL JPEG ou PNG Base64, ate 5 MB; vazio sem capa."
+          }
+        },
+        "required": [
+          "titulo",
+          "autor",
+          "genero",
+          "estado",
+          "descricao",
+          "modalidade"
+        ],
+        "additionalProperties": false
+      },
+      "Livro": {
+        "type": "object",
+        "properties": {
+          "titulo": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1
+          },
+          "autor": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1
+          },
+          "genero": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "novo",
+              "seminovo",
+              "bom",
+              "marcas"
+            ]
+          },
+          "descricao": {
+            "type": "string",
+            "maxLength": 3000,
+            "minLength": 1
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "troca",
+              "venda",
+              "doacao"
+            ]
+          },
+          "desejo": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "preco_centavos": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "capa": {
+            "type": "string",
+            "description": "Data URL JPEG ou PNG Base64, ate 5 MB; vazio sem capa."
+          },
+          "identificador": {
+            "type": "string"
+          },
+          "proprietario_id": {
+            "type": "string"
+          },
+          "proprietario": {
+            "type": "string"
+          },
+          "cidade": {
+            "type": "string"
+          },
+          "criado_em": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "titulo",
+          "autor",
+          "genero",
+          "estado",
+          "descricao",
+          "modalidade",
+          "desejo",
+          "preco_centavos",
+          "capa",
+          "identificador",
+          "proprietario_id",
+          "proprietario",
+          "cidade",
+          "criado_em"
+        ],
+        "additionalProperties": false
+      },
+      "Conversa": {
+        "type": "object",
+        "properties": {
+          "identificador": {
+            "type": "string"
+          },
+          "livro_id": {
+            "type": "string"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "interlocutor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "identificador",
+          "livro_id",
+          "titulo",
+          "interlocutor"
+        ],
+        "additionalProperties": false
+      },
+      "Mensagem": {
+        "type": "object",
+        "properties": {
+          "identificador": {
+            "type": "string"
+          },
+          "remetente_id": {
+            "type": "string"
+          },
+          "texto": {
+            "type": "string"
+          },
+          "criado_em": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "identificador",
+          "remetente_id",
+          "texto",
+          "criado_em"
+        ],
+        "additionalProperties": false
+      },
+      "Erro": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "erro"
+            ]
+          },
+          "code": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "message"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "status",
+          "code",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "Sessao": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sucesso"
+            ]
+          },
+          "code": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "token": {
+                "type": "string"
+              },
+              "expira_em": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "usuario": {
+                "$ref": "#/components/schemas/Usuario"
+              }
+            },
+            "required": [
+              "token",
+              "expira_em",
+              "usuario"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "status",
+          "code",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "Perfil": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sucesso"
+            ]
+          },
+          "code": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "usuario": {
+                "$ref": "#/components/schemas/Usuario"
+              },
+              "livros": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Livro"
+                }
+              }
+            },
+            "required": [
+              "usuario",
+              "livros"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "status",
+          "code",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "Catalogo": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sucesso"
+            ]
+          },
+          "code": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "livros": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Livro"
+                }
+              }
+            },
+            "required": [
+              "livros"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "status",
+          "code",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "Conversas": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sucesso"
+            ]
+          },
+          "code": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "conversas": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Conversa"
+                }
+              }
+            },
+            "required": [
+              "conversas"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "status",
+          "code",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "Mensagens": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sucesso"
+            ]
+          },
+          "code": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "mensagens": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Mensagem"
+                }
+              }
+            },
+            "required": [
+              "mensagens"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "status",
+          "code",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "Identificador": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sucesso"
+            ]
+          },
+          "code": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "identificador": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "identificador"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "status",
+          "code",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "Confirmacao": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sucesso"
+            ]
+          },
+          "code": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "message"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "status",
+          "code",
+          "data"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}
