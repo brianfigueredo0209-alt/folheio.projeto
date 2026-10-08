@@ -113,3 +113,6 @@ FOLHEIO-WEB/
 ## Licenca
 
 Distribuido sob a licenca MIT. Consulte o arquivo `LICENSE` para mais informacoes.
+## Documentação técnica em LaTeX
+
+Consulte [o guia técnico completo](docs/README.md), com PDF e fonte LaTeX. O guia descreve a implementação da branch codex/integracao-api-web-android, commit f96a04a, e registra as validações ainda pendentes.

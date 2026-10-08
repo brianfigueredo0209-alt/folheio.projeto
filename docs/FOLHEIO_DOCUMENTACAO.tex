@@ -1,0 +1,303 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern,microtype,geometry,xcolor}
+\geometry{margin=23mm,headheight=15pt}
+\definecolor{folheio}{HTML}{8D3928}
+\definecolor{paper}{HTML}{FAF6EF}
+\usepackage{array,tabularx,longtable,booktabs,enumitem,listings}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,backgroundcolor=\color{paper},frame=single,rulecolor=\color{folheio!25},framesep=7pt}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{titlesec,needspace}
+\titleformat{\section}{\Large\bfseries\color{folheio}}{\thesection}{0.7em}{}
+\usepackage{fancyhdr}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\textsc{FOLHEIO}}\fancyhead[R]{\small Guia técnico e de entrega}
+\fancyfoot[L]{\small Edição 1.0 --- 08/10/2026}\fancyfoot[R]{\thepage}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=folheio,urlcolor=folheio,pdftitle={FOLHEIO: arquitetura, implementação e operação},pdfauthor={Projeto FOLHEIO}}
+\urlstyle{tt}
+\setlength{\parindent}{0pt}\setlength{\parskip}{6pt}\setlength{\emergencystretch}{3em}
+\renewcommand{\arraystretch}{1.15}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\arquivo}[1]{\path{#1}}
+\begin{document}
+\hypersetup{pageanchor=false}\begin{titlepage}\pagecolor{paper}
+\vspace*{20mm}{\large\textsc{Circulação literária independente}\par}
+\vspace{18mm}{\fontsize{44}{48}\selectfont\bfseries\color{folheio} FOLHEIO\par}
+\vspace{8mm}{\huge Arquitetura, implementação\\e operação\par}
+\vspace{12mm}{\Large Guia do site, da API compartilhada\\e do aplicativo Android em Kotlin\par}
+\vfill
+\begin{tabular}{@{}ll@{}}Edição & 1.0\\Data & 08 de outubro de 2026\\Código analisado & \texttt{f96a04a}\\Branch funcional & \texttt{codex/integracao-api-web-android}\\Publicação deste guia & \texttt{main}\\\end{tabular}\par
+\vspace{10mm}
+Este documento descreve o código existente, como executar o sistema e como concluir a entrega. Funcionalidades futuras são identificadas como planejadas. Compilar o aplicativo não equivale a validar seu uso.
+\end{titlepage}\hypersetup{pageanchor=true}\nopagecolor\begingroup\setlength{\parskip}{0pt}\small\tableofcontents\endgroup\newpage
+\section{Objetivo, escopo e versão}
+O FOLHEIO conecta leitores para anúncio, descoberta e negociação de livros por troca, venda e doação. Site e aplicativo consomem a mesma API e banco. A conta pode ser usada nos dois clientes, que mantêm sessões independentes.
+Este guia atende quem vai executar a demonstração, desenvolver funcionalidades e aprovar a entrega. A execução está na Seção~\ref{sec:executar}; os critérios de aprovação, na Seção~\ref{sec:qualidade}.
+\subsection{Código de referência}
+O código documentado está no commit \texttt{f96a04a}, na branch \texttt{codex/integracao-api-web-android}. Publicar este guia na \texttt{main} não incorpora automaticamente aquela implementação. Os comandos deste guia exigem checkout da integração ou de uma versão que a tenha incorporado.
+A especificação de máquina está em \arquivo{backend/contrato.openapi.json}; o resumo em \arquivo{CONTRATO_API.md}, na integração. Contrato, handlers e clientes devem ser alterados juntos.
+\subsection{Primeira entrega}
+\begin{itemize}
+\item Cadastro, login, expiração e revogação da sessão.
+\item Catálogo público, pesquisa, publicação, edição e remoção de anúncios.
+\item Troca, venda e doação com capa opcional; perfil com estante do titular.
+\item Conversas por livro e mensagens persistidas, restritas aos participantes.
+\item SPA Vue e aplicativo nativo Kotlin conectados ao contrato compartilhado.
+\end{itemize}
+Venda representa anúncio com preço e negociação pelo chat. Não há pagamento integrado, frete nem registro formal de transação concluída. Avaliações do widget React pertencem ao protótipo; não integram a persistência da API desta entrega.
+\section{Estado real e evidências}
+\par\medskip\noindent\begin{tabularx}{\textwidth}{@{}p{25mm}Y >{\raggedright\arraybackslash}p{42mm}@{}}\toprule Área & Evidência & Limite\\\midrule
+API & Testes de regras e fluxo com PostgreSQL isolado executados durante a implementação. & Sem ensaio de carga ou auditoria de produção.\\
+SPA & Build e teste de dois usuários: cadastro, anúncio, chat, edição, remoção e saída. & Responsividade e visual precisam de revisão adicional.\\
+Android & Build debug concluído e APK gerado. & Execução em dispositivo e visual pendentes.\\
+Python & Serviço inicial com recomendações fixas. & Sem recomendador conectado aos dados reais.\\
+Mongo/Redis & Definidos no Compose. & Sem uso no fluxo integrado.\\\bottomrule\end{tabularx}\par\medskip
+As evidências são pontuais. Um teste Go com \texttt{SKIP} por ausência de \texttt{TEST\_DATABASE\_URL} não valida o banco. PUT foi exercitado no teste web; ampliar a cobertura direta da edição no teste da API permanece uma tarefa.
+\section{Arquitetura e responsabilidades}
+\begin{center}\begin{tikzpicture}[node distance=12mm and 10mm,box/.style={draw=folheio,rounded corners,fill=paper,align=center,text width=37mm,minimum height=16mm,font=\small},flow/.style={-{Stealth},thick,draw=folheio}]
+\node[box] (web) {SPA Vue\\navegador};\node[box,right=of web] (api) {API Go\\HTTP/JSON};\node[box,right=of api] (db) {PostgreSQL\\persistência};\node[box,below=of web] (android) {Android Kotlin\\aplicativo nativo};\draw[flow] (web)--(api);\draw[flow] (android.east)-|(api.south);\draw[flow] (api)--(db);
+\end{tikzpicture}\end{center}
+A API autentica, valida regras, autoriza operações e grava no banco. Os clientes apresentam os dados e enviam intenções. Propriedade e participação em conversas são decididas pelo servidor.
+\subsection{Mapa do código}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{66mm}>{\raggedright\arraybackslash}p{89mm}@{}}\toprule Caminho & Responsabilidade\\\midrule\endhead
+\arquivo{backend/api-core/cmd/server/main.go} & Inicialização HTTP, banco e CORS.\\
+\arquivo{backend/api-core/internal/plataforma/servidor.go} & Handlers, autenticação, regras e persistência.\\
+\arquivo{backend/api-core/internal/plataforma/esquema.sql} & Tabelas e índices iniciais.\\
+\arquivo{backend/api-core/internal/plataforma/servidor_test.go} & Testes de regras e integração.\\
+\arquivo{backend/contrato.openapi.json} & OpenAPI 3.0.3.\\
+\arquivo{folheio-vue/src/servicos/api.js} & Cliente HTTP, sessão e timeout.\\
+\arquivo{folheio-vue/src/paginas/} & Telas do site integradas.\\
+\arquivo{folheio-android/app/src/main/java/com/felipe/folheio_app/MainActivity.kt} & Telas e navegação programáticas.\\
+\arquivo{folheio-android/app/src/main/java/com/felipe/folheio_app/dados/ClienteApi.kt} & Cliente HTTP/JSON Android.\\
+\arquivo{backend/ai-service/app/main.py} & Serviço Python inicial.\\
+\arquivo{testes/integracao_web.cjs} & Teste Playwright de dois usuários.\\
+\arquivo{paginas/}, \arquivo{scripts/} & Protótipo HTML original.\\
+\arquivo{folheio-react-widget/} & Widget de avaliações do protótipo.\\\bottomrule\end{longtable}
+\subsection{Tecnologias verificadas}
+SPA: Vue 3.5, Vue Router 4.6 e Vite 8.3. Widget: React 19. API: Go, \texttt{database/sql}, pgx e bcrypt. Compose: PostgreSQL 15, Redis 7 e MongoDB 6.
+Android: AGP 9.4.0, Gradle Wrapper 9.6.0, SDK de compilação/alvo 37 e API mínima 24. O build foi executado com JBR 25 do Android Studio. Consulte manifests, lockfiles e catálogo Gradle antes de atualizar dependências.
+\section{Modelo de dados e regras}
+\par\medskip\noindent\begin{tabularx}{\textwidth}{@{}p{27mm}Y@{}}\toprule Entidade & Conteúdo e relações\\\midrule
+Usuário & Identificador, nome, e-mail único, hash de senha, cidade e criação.\\
+Sessão & Hash do token, usuário e expiração.\\
+Livro & Proprietário, título, autor, gênero, conservação, descrição, modalidade, desejo, preço em centavos, capa e criação.\\
+Conversa & Livro e interessado; combinação livro/interessado única.\\
+Mensagem & Conversa, remetente, texto e criação.\\\bottomrule\end{tabularx}\par\medskip
+O proprietário do livro e o interessado participam da conversa. Solicitações repetidas recuperam a conversa existente. Não se permite negociar o próprio livro.
+Excluir um anúncio exclui suas conversas e mensagens por \texttt{ON DELETE CASCADE}. A confirmação na interface deve comunicar esse efeito. Arquivamento e preservação do histórico ainda não existem.
+\subsection{Limites de validação}
+Texto é limitado em bytes no Go; caracteres acentuados podem ocupar mais de um byte. O cliente deve apresentar a mensagem de validação da API.
+\par\medskip\noindent\begin{tabularx}{\textwidth}{@{}p{36mm}Y@{}}\toprule Campo & Regra\\\midrule
+Título/autor & Obrigatórios; até 200 bytes cada.\\
+Gênero & Obrigatório; até 80 bytes.\\
+Descrição & Obrigatória; até 3.000 bytes.\\
+Desejo & Até 500 bytes; obrigatório para troca.\\
+Conservação & \texttt{novo}, \texttt{seminovo}, \texttt{bom}, \texttt{marcas}.\\
+Modalidade & \texttt{troca}, \texttt{venda}, \texttt{doacao}.\\
+Preço & Inteiro em centavos; venda positiva até 100.000.000; outras modalidades usam zero.\\
+Capa & Opcional: JPEG/PNG Base64 em data URL, até 5 MiB de imagem; bytes validados.\\
+Mensagem & Texto não vazio, até 2.000 bytes.\\
+Cadastro & Nome/cidade obrigatórios até 120 bytes; e-mail válido até 254 bytes; senha entre 8 e 72 bytes.\\\bottomrule\end{tabularx}\par\medskip
+O corpo JSON tem limite de 8 MiB. Base64 aumenta o tamanho da imagem; limite de corpo e de imagem são diferentes. Capas ficam em texto no banco nesta etapa; armazenamento de objetos é uma evolução prevista.
+\section{Contrato de comunicação}
+\Needspace{10\baselineskip}\subsection{Envelope e sessão}
+\begin{lstlisting}
+{ "status": "sucesso", "code": 200, "data": {} }
+\end{lstlisting}
+Erros usam \texttt{status: erro} e \texttt{data.message}. Observe também o status HTTP. Cadastro/login retornam \texttt{token}, \texttt{expira\_em} e \texttt{usuario} dentro de \texttt{data}. Rotas privadas recebem:
+\begin{lstlisting}
+Authorization: Bearer TOKEN
+Content-Type: application/json
+\end{lstlisting}
+O token opaco tem 256 bits aleatórios, expira em 24 horas e seu hash SHA-256 fica no banco. A saída revoga a sessão atual. Senhas usam bcrypt; JWT não foi implementado.
+A SPA mantém sessão em \texttt{sessionStorage}; o Android em memória, exigindo login ao reiniciar o processo. Livros e mensagens pertencem ao backend. Resposta 401 deve limpar a sessão e orientar novo login.
+\subsection{Rotas implementadas}
+\small\begin{longtable}{@{}p{16mm}>{\raggedright\arraybackslash}p{91mm}>{\raggedright\arraybackslash}p{44mm}@{}}\toprule Método & Caminho & Acesso/efeito\\\midrule\endhead
+GET & \path{/status} & Público; API e banco.\\
+POST & \path{/api/v1/auth/cadastro} & Público; conta/sessão.\\
+POST & \path{/api/v1/auth/login} & Público; sessão.\\
+POST & \path{/api/v1/auth/sair} & Autenticado; revogação.\\
+GET & \path{/api/v1/perfil} & Titular e seus livros.\\
+GET & \path{/api/v1/livros} & Público; catálogo/filtros.\\
+POST & \path{/api/v1/livros} & Autenticado; anúncio.\\
+PUT & \path{/api/v1/livros/{livro}} & Proprietário; edição.\\
+DELETE & \path{/api/v1/livros/{livro}} & Proprietário; remoção.\\
+GET & \path{/api/v1/conversas} & Participante; lista.\\
+POST & \path{/api/v1/conversas} & Cria/recupera por livro.\\
+GET & \path{/api/v1/conversas/{conversa}/mensagens} & Participante; leitura.\\
+POST & \path{/api/v1/conversas/{conversa}/mensagens} & Participante; envio.\\\bottomrule\end{longtable}\normalsize
+O catálogo aceita \texttt{busca} e \texttt{modalidade}; pesquisa título, autor, gênero e cidade, retornando até 100 anúncios recentes. Mensagens retornam até 200 recentes em ordem cronológica. Ainda não há paginação.
+\subsection{Exemplos}
+Cadastro:
+\begin{lstlisting}
+{ "nome": "Leitora de demonstracao",
+  "email": "leitora@example.com",
+  "senha": "DEFINA_UMA_SENHA_DE_TESTE",
+  "cidade": "Maceio - AL" }
+\end{lstlisting}
+Publicação/edição:
+\begin{lstlisting}
+{ "titulo": "Duna", "autor": "Frank Herbert",
+  "genero": "fantasia", "estado": "bom",
+  "descricao": "Edicao conservada, sem anotacoes.",
+  "modalidade": "troca", "desejo": "Outro romance",
+  "preco_centavos": 0, "capa": "" }
+\end{lstlisting}
+Criar conversa e enviar mensagem são requisições distintas:
+\begin{lstlisting}
+{ "livro_id": "IDENTIFICADOR_DO_LIVRO" }
+{ "texto": "Tenho interesse na troca." }
+\end{lstlisting}
+Use os identificadores retornados pela API. O proprietário vem do token; nomes e cidades apresentados vêm dos dados persistentes.
+\section{Como executar}\label{sec:executar}
+\subsection{Checkout e pré-requisitos}
+Em um clone novo:
+\begin{lstlisting}
+git clone https://github.com/brianfigueredo0209-alt/folheio.projeto.git
+cd folheio.projeto
+git switch codex/integracao-api-web-android
+\end{lstlisting}
+Preserve alterações locais antes de trocar de branch. O Android versionado está em \arquivo{folheio-android/}; cópias em \texttt{AndroidStudioProjects} não são sincronizadas automaticamente.
+Use Docker/Compose e Node/npm compatíveis com dependências/lockfile. O fluxo Docker não exige Go no host.
+\subsection{API e site}
+Na raiz:
+\begin{lstlisting}
+docker compose up -d --build api-core
+docker compose ps
+Invoke-RestMethod http://localhost:8080/status
+npm ci --prefix folheio-vue
+npm run dev --prefix folheio-vue
+\end{lstlisting}
+Vite fica ativo no terminal. Abra \url{http://127.0.0.1:5173/}. Compose inicia o PostgreSQL, aguarda sua saúde e inicia a API. Redis, MongoDB e Python não são necessários ao fluxo inicial.
+Credenciais do Compose são de desenvolvimento. Volumes preservam dados. \texttt{docker compose down} encerra serviços; acrescentar \texttt{-v} remove volumes e dados, portanto não é solução rotineira de conexão.
+\begin{lstlisting}
+docker compose logs --tail 100 api-core postgres
+\end{lstlisting}
+Confira Docker, portas, banco e logs antes de alterar código. Não publique tokens/senhas em relatos de erro.
+\subsection{URLs e configuração}
+\par\medskip\noindent\begin{tabularx}{\textwidth}{@{}p{38mm}Y@{}}\toprule Cliente & API\\\midrule
+Navegador no computador & \url{http://localhost:8080}\\
+Emulador Android & \url{http://10.0.2.2:8080}\\
+Celular na mesma rede & \texttt{http://IP\_DO\_COMPUTADOR:8080}\\
+Distribuição & Endpoint HTTPS do backend publicado.\\\bottomrule\end{tabularx}\par\medskip
+\texttt{localhost} no celular é o próprio celular. O emulador usa \texttt{10.0.2.2} para alcançar o host; o celular físico usa IP do computador e precisa alcançar a porta.
+A SPA lê \texttt{VITE\_API\_URL}; a API lê \texttt{DATABASE\_URL}, \texttt{PORT}, \texttt{CORS\_ORIGINS}. CORS exige protocolo, host e porta exatos da origem, sem caminho. O Compose permite localhost e 127.0.0.1 na porta 5173. CORS não substitui autorização.
+\subsection{Android Studio, SDK e Java}
+Abra \arquivo{folheio-android/}, configure SDK/JDK do Gradle e espere o Sync. Referência: JBR 25, plataforma 37 e Build Tools 36/37. \arquivo{local.properties} é local e não deve entrar no Git.
+No Device Manager, crie uma imagem compatível com API mínima 24, inicie o dispositivo e selecione-o. \textit{No Devices} indica ausência de dispositivo disponível. Na pasta Android:
+\begin{lstlisting}
+.\gradlew.bat :app:assembleDebug
+\end{lstlisting}
+APK: \arquivo{app/build/outputs/apk/debug/app-debug.apk}. Para celular:
+\begin{lstlisting}
+.\gradlew.bat :app:assembleDebug -PfolheioApiUrl=http://IP_DO_COMPUTADOR:8080
+\end{lstlisting}
+Execute a configuração \texttt{app} com o backend ativo. HTTP está permitido apenas no manifesto debug; distribuição exige HTTPS.
+\textbf{Preview XML.} \arquivo{activity_main.xml} ainda mostra Hello World. As telas funcionais são montadas em \arquivo{MainActivity.kt}. O preview XML não representa a UI real: avalie o aplicativo instalado.
+\section{Validação funcional e visual}\label{sec:qualidade}
+\subsection{Roteiro cruzado}
+Crie contas distintas A e B. Não há credencial universal definida. Contas de \texttt{folheio\_teste} não existem automaticamente na demonstração.
+\begin{enumerate}
+\item A publica troca com capa no site.
+\item B entra no Android, atualiza catálogo e encontra a oferta.
+\item B inicia conversa; A responde no site; B verifica a resposta.
+\item A edita título, muda para venda e informa preço; B confere após atualizar.
+\item A remove após ler a confirmação; confira remoção do anúncio e conversas.
+\item Saia da sessão; rotas privadas devem pedir login.
+\end{enumerate}
+O chat consulta a cada cinco segundos enquanto ativo. WebSocket e notificações de segundo plano não foram implementados.
+Teste senha incorreta, e-mail duplicado, rede indisponível, expiração, capa inválida, troca sem desejo e venda sem preço. Por requisição direta, B não deve editar anúncio de A; terceiro usuário não deve ler a conversa.
+\Needspace{16\baselineskip}\subsection{Revisão visual}
+Android precisa de teste em dispositivo. O fluxo web foi exercitado em desktop; isso não aprova automaticamente responsividade.
+\par\medskip\noindent\begin{tabularx}{\textwidth}{@{}p{31mm}Y@{}}\toprule Tela/estado & Critério\\\midrule
+Login/cadastro & Campos legíveis, erros úteis, teclado adequado e botão alcançável.\\
+Catálogo & Capas proporcionais, fallback, busca e modalidade reconhecível pelo texto.\\
+Publicação/edição & Rolagem completa; carga inicial não sobrescreve edição; preço coerente.\\
+Perfil & Estante do titular; ações claras; confirmação explica efeito sobre chat.\\
+Mensagens & Remetente reconhecível, texto longo sem corte, envio com teclado aberto.\\
+Erro/vazio/carga & Recuperação possível; nenhum conteúdo fictício apresentado como persistente.\\
+Acessibilidade & Texto ampliado, contraste, foco e ações compreensíveis ao leitor de tela.\\\bottomrule\end{tabularx}\par\medskip
+Revise telas pequenas/grandes, textos longos, falta de capa e rede lenta. Registre captura, dispositivo, dimensões e reprodução. Captura estática não substitui interação.
+\section{Testes reproduzíveis}
+\subsection{Go}
+Na pasta \arquivo{backend/api-core/}:
+\begin{lstlisting}
+go test ./...
+\end{lstlisting}
+Para integração, prepare PostgreSQL separado com banco \texttt{folheio\_teste}:
+\begin{lstlisting}
+$env:TEST_DATABASE_URL = "postgres://USUARIO:SENHA@HOST:5432/folheio_teste?sslmode=disable"
+go test ./... -count=1 -v
+\end{lstlisting}
+A checagem de nome na URL não garante isolamento. Confira host, banco e credenciais; não use produção/demonstração. O teste Go tenta limpar seus usuários no final.
+\subsection{Playwright}
+\arquivo{testes/integracao_web.cjs} exige Chromium/Playwright, site em 127.0.0.1:5173 e API de teste em localhost:8081 com banco isolado. Redireciona chamadas originalmente destinadas a localhost:8080.
+Prepare API separada: PORT=8081, DATABASE\_URL de teste e CORS do site; execute Go em outro terminal, ou publique 8081 para 8080 em contêiner separado. A demonstração pode continuar em 8080.
+Na raiz, ferramentas locais:
+\begin{lstlisting}
+npm install --prefix .ferramentas-teste playwright
+.\.ferramentas-teste\node_modules\.bin\playwright.cmd install chromium
+$env:PLAYWRIGHT_MODULE = (Resolve-Path .ferramentas-teste/node_modules/playwright).Path
+node testes/integracao_web.cjs
+\end{lstlisting}
+Não versione \texttt{.ferramentas-teste}. O teste cria contas no banco isolado e captura em \arquivo{tmp/estante-integrada.png}. Não limpa todas as contas; planeje limpeza separada.
+\subsection{Aprovação da entrega}
+\begin{enumerate}
+\item API inicia com banco e passa testes pertinentes.
+\item SPA compila e passa fluxo de dois usuários sem erros JavaScript.
+\item Android gera APK e passa roteiro em dispositivo.
+\item Site e app passam visual e estados de erro.
+\item Contrato/instruções correspondem ao código.
+\item Revisão resolve falhas conhecidas antes de incorporar na main.
+\end{enumerate}
+Execução e visual do Android permanecem pendentes na referência deste guia.
+\section{Como desenvolver e contribuir}
+\subsection{Sequência de implementação}
+Defina caso de uso e resultado observável. Especifique entrada, saída, autorização, erros e limites. Implemente persistência/handler, teste regras e integre os dois clientes. Finalize com documentação e evidência de uso.
+Mudanças compartilhadas exigem revisar \arquivo{api.js} e \arquivo{ClienteApi.kt}. Preserve campos em mudanças compatíveis; planeje transição/versionamento para alterações incompatíveis.
+\subsection{Migrações e organização}
+\texttt{CREATE TABLE IF NOT EXISTS} não transforma tabelas existentes. Novas colunas/restrições exigem migrações explícitas e análise dos dados. Remover volumes não demonstra migração.
+Extraia responsabilidades do handler e da Activity à medida que o sistema crescer, preservando contrato e testes. Reorganização de arquivos sozinha não entrega funcionalidade.
+\subsection{Git}
+\begin{lstlisting}
+git fetch origin
+git switch -c codex/nome-da-mudanca origin/main
+# implementar, verificar e documentar
+git add CAMINHOS_REVISADOS
+git diff --cached --check
+git commit -m "feat: descreve o comportamento entregue"
+git push -u origin codex/nome-da-mudanca
+\end{lstlisting}
+Selecione arquivos; exclua SDK, configurações locais, tokens, caches, builds e APKs. A revisão descreve problema, resultado e testes. Publicar este guia na main não incorpora código da integração.
+\section{Etapas seguintes}
+\par\medskip\noindent\begin{tabularx}{\textwidth}{@{}p{12mm}p{37mm}Y@{}}\toprule Etapa & Entrega & Conclusão\\\midrule
+1 & Demonstrar & Dispositivo executando, dados compartilhados e visual revisado.\\
+2 & Cobrir limites & PUT direto, sessão, permissões, rede e upload exercitados.\\
+3 & Escalar & Paginação, índices medidos e capas fora do JSON principal.\\
+4 & Contas & Recuperação de senha e edição de perfil nos clientes.\\
+5 & Negociação & Estados, conclusão e preservação de histórico definidos.\\
+6 & Mensagens & Necessidade de WebSocket/notificações definida e testada.\\
+7 & Publicar & HTTPS, configuração externa, backup/restauração, observabilidade e release.\\\bottomrule\end{tabularx}\par\medskip
+Pagamentos, frete e recomendações personalizadas dependem de requisito de produto. MongoDB/Redis não precisam entrar no fluxo só por existirem no Compose. Antes da publicação, repita os roteiros com API definitiva e APK release.
+\section{Diagnóstico e manutenção}
+\begin{description}
+\item[SDK não especificado:] confira plataforma instalada, caminho de SDK e JDK; sincronize novamente.
+\item[No Devices:] inicie emulador ou conecte celular autorizado para depuração.
+\item[Conexão:] confira API, URL do build e rede; emulador usa 10.0.2.2, celular usa IP do host.
+\item[CORS:] compare a origem exata com CORS\_ORIGINS.
+\item[Conta de teste:] confira banco; cadastre no ambiente da demonstração.
+\item[Hello World:] execute o app, cuja interface vem do Kotlin.
+\item[Chat demora:] confira ciclo de cinco segundos, tela ativa e API.
+\end{description}
+Fonte: \arquivo{docs/FOLHEIO_DOCUMENTACAO.tex}. Documento independente de imagens e arquivos adicionais. Compile no editor LaTeX do Codex ou com distribuição TeX e os pacotes declarados:
+\begin{lstlisting}
+pdflatex -interaction=nonstopmode FOLHEIO_DOCUMENTACAO.tex
+pdflatex -interaction=nonstopmode FOLHEIO_DOCUMENTACAO.tex
+\end{lstlisting}
+Duas passagens atualizam sumário/referências. Confira diagnósticos e PDF, especialmente tabelas e comandos. Não versione auxiliares. Atualize data, commit, evidências e pendências a cada entrega.
+Este guia foi elaborado a partir do código local. Não declara aprovação visual do Android, implantação em produção ou funções planejadas como concluídas.
+\end{document}

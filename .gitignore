@@ -27,3 +27,11 @@ GEMINI.md
 # Cache do editor
 .vscode/
 .idea/
+# Artefatos temporários de documentação e testes
+tmp/
+.ferramentas-teste/
+docs/*.aux
+docs/*.log
+docs/*.out
+docs/*.toc
+docs/*.synctex.gz
